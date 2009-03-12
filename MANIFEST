@@ -1,0 +1,13 @@
+Changes
+lib/App/DPAN.pm
+lib/DPAN.pm
+LICENSE
+Makefile.PL
+MANIFEST
+README
+t/app/dpan.t
+t/compile.t
+t/load.t
+t/pod.t
+t/pod_coverage.t
+t/test_manifest
