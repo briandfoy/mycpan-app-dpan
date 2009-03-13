@@ -12,15 +12,17 @@ WriteMakefile(
 	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
 	
 	'PREREQ_PM'    => { 
-		'MyCPAN::Indexer'      => '1.18',
+		'MyCPAN::Indexer'      => '1.19',
 		'CPAN::PackageDetails' => '0.18',
 		},
 	
 	'PM'           => {
-		'lib/DPAN.pm'     => '$(INST_LIBDIR)/Indexer/DPAN.pm',
-		'lib/App/DPAN.pm' => '$(INST_LIBDIR)/App/DPAN.pm',
+		'lib/Indexer.pm'  => '$(INST_LIBDIR)/DPAN/Indexer.pm',
+		'lib/DPAN.pm'     => '$(INST_LIBDIR)/DPAN.pm',
 		},
 
+	'EXE_FILES'    => [ 'script/dpan' ],
+	
 	'MAN3PODS'     => {},
 
 	clean  => { FILES    => q|MyCPAN-*| },
