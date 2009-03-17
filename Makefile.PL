@@ -6,8 +6,8 @@ eval "use Test::Manifest 1.21";
 
 WriteMakefile(
 	'NAME'	       => 'MyCPAN::App::DPAN',
-	'ABSTRACT'     => 'Create a custom, private DarkPAN repository',
-	'VERSION_FROM' => 'lib/DPAN.pm',
+	'ABSTRACT'     => 'Create a custom, private DarkPAN repository that looks just like a real CPAN',
+	'VERSION_FROM' => 'lib/App-DPAN.pm',
 	'LICENSE'      => 'perl',
 	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
 	
@@ -17,8 +17,8 @@ WriteMakefile(
 		},
 	
 	'PM'           => {
-		'lib/DPAN.pm'     => '$(INST_LIBDIR)/Indexer/DPAN.pm',
-		'lib/App/DPAN.pm' => '$(INST_LIBDIR)/DPAN.pm',
+		'lib/Indexer-DPAN.pm'     => '$(INST_LIBDIR)/Indexer/DPAN.pm',
+		'lib/App-DPAN.pm'         => '$(INST_LIBDIR)/DPAN.pm',
 		},
 
 	'MAN3PODS'     => {},
