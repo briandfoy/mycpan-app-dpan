@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package MyCPAN::App::DPAN;
+package MyCPAN::App::Indexer::DPAN;
 use strict;
 
 use warnings;
@@ -38,7 +38,7 @@ It runs through the indexing and prints a report at the end of the run.
 =cut
 
 use Carp qw(croak);
-use Cwd qw(cwd);
+use Cwd  qw(cwd);
 
 use Log::Log4perl;
 

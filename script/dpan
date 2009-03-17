@@ -1,4 +1,4 @@
-#!env perl
+#!/usr/bin/perl
 use MyCPAN::App::DPAN;
 
 MyCPAN::App::DPAN->run( @ARGV );
