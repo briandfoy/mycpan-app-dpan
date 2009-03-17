@@ -18,11 +18,13 @@ WriteMakefile(
 	
 	'PM'           => {
 		'lib/DPAN.pm'     => '$(INST_LIBDIR)/Indexer/DPAN.pm',
-		'lib/App/DPAN.pm' => '$(INST_LIBDIR)/App/DPAN.pm',
+		'lib/App/DPAN.pm' => '$(INST_LIBDIR)/DPAN.pm',
 		},
 
 	'MAN3PODS'     => {},
 
+	'EXE_FILES'    => [ qw(script/dpan) ],
+	
 	clean  => { FILES    => q|MyCPAN-*| },
 
 	);

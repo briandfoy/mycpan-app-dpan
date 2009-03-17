@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package MyCPAN::Indexer::DPAN;
+package MyCPAN::App::Indexer::DPAN;
 use strict;
 
 use warnings;
@@ -15,7 +15,7 @@ use File::Spec::Functions qw(catfile);
 use File::Path;
 use YAML;
 
-$VERSION = '1.18';
+$VERSION = '1.18_01';
 
 =head1 NAME
 

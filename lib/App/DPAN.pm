@@ -9,7 +9,7 @@ use Cwd qw(cwd);
 use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile);
 
-$VERSION = '1.18';
+$VERSION = '1.18_01';
 
 BEGIN {
 my $cwd = cwd();
@@ -17,8 +17,8 @@ my $cwd = cwd();
 my $report_dir = catfile( $cwd, 'indexer_reports' );
 
 my %Defaults = (
-	indexer_class         => 'MyCPAN::Indexer::DPAN',
-	reporter_class        => 'MyCPAN::Indexer::DPAN',
+	indexer_class         => 'MyCPAN::App::Indexer::DPAN',
+	reporter_class        => 'MyCPAN::App::Indexer::DPAN',
 	parallel_jobs         => 1,
 	);
 
