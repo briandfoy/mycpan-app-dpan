@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package MyCPAN::App::Indexer::DPAN;
+package MyCPAN::App::DPAN;
 use strict;
 
 use warnings;
