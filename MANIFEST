@@ -5,6 +5,8 @@ LICENSE
 Makefile.PL
 MANIFEST
 README
+script/backpan_indexer.config.dpan
+script/dpan
 t/app/dpan.t
 t/compile.t
 t/load.t
