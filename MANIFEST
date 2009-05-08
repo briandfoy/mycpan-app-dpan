@@ -1,6 +1,6 @@
 Changes
-lib/App/DPAN.pm
-lib/DPAN.pm
+lib/App-DPAN.pm
+lib/Indexer-DPAN.pm
 LICENSE
 Makefile.PL
 MANIFEST

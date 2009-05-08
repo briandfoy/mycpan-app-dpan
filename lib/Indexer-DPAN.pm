@@ -15,7 +15,7 @@ use File::Spec::Functions qw(catfile);
 use File::Path;
 use YAML;
 
-$VERSION = '1.18_01';
+$VERSION = '1.18_03';
 
 =head1 NAME
 
@@ -46,6 +46,10 @@ BEGIN {
 	$indexer_logger  = Log::Log4perl->get_logger( 'Indexer' );
 	$reporter_logger = Log::Log4perl->get_logger( 'Reporter' );
 	}
+
+# Override the exit from the parent class so we can embed a run
+# inside a bigger application
+sub _exit { 1 }
 
 __PACKAGE__->run( @ARGV ) unless caller;
 
