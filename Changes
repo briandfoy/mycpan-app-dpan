@@ -1,5 +1,9 @@
 # Changes for DarkPAN::Creator
 
+1.18_04 - Sat May  9 02:07:47 2009
+	* Worked out some inheritance issues. I really need to use
+	roles.
+
 1.18_03 - Fri May  8 16:04:26 2009
 	* Clean up dist
 	* Fix problem with _exit inherited from MyCPAN::Indexer. This 
