@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 use MyCPAN::App::DPAN;
 
-MyCPAN::App::DPAN->run( @ARGV );
+MyCPAN::App::DPAN->activate( @ARGV );
 
 exit( 0 );
 
