@@ -11,6 +11,7 @@ use vars qw($VERSION $indexer_logger $reporter_logger);
 
 # don't change the inheritance order
 # this should be done with roles, but we don't quite have that yet
+# it's a problem with who's cleanup() get called
 use base qw(MyCPAN::App::BackPAN::Indexer MyCPAN::Indexer MyCPAN::Indexer::Reporter::AsYAML);
 
 use File::Basename;
