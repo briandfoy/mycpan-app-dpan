@@ -8,7 +8,11 @@ no warnings;
 
 use subs qw(get_caller_info);
 use vars qw($VERSION $indexer_logger $reporter_logger);
-use base qw(MyCPAN::Indexer MyCPAN::Indexer::Reporter::AsYAML);
+
+# don't change the inheritance order
+# this should be done with roles, but we don't quite have that yet
+# it's a problem with who's cleanup() get called
+use base qw(MyCPAN::App::BackPAN::Indexer MyCPAN::Indexer MyCPAN::Indexer::Reporter::AsYAML);
 
 use File::Basename;
 use File::Spec::Functions qw(catfile);
@@ -51,7 +55,7 @@ BEGIN {
 # inside a bigger application
 sub _exit { 1 }
 
-__PACKAGE__->run( @ARGV ) unless caller;
+__PACKAGE__->activate( @ARGV ) unless caller;
 
 =head2 Indexer class
 

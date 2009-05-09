@@ -2,7 +2,7 @@ package MyCPAN::App::DPAN;
 use strict;
 use warnings;
 
-use base qw( MyCPAN::App::BackPAN::Indexer );
+use base qw( MyCPAN::App::Indexer::DPAN );
 use vars qw($VERSION);
 
 use Cwd qw(cwd);
