@@ -11,6 +11,8 @@ use vars qw($VERSION $indexer_logger $reporter_logger);
 use base qw(MyCPAN::App::BackPAN::Indexer MyCPAN::Indexer MyCPAN::Indexer::Reporter::AsYAML);
 
 use Cwd qw(cwd);
+use File::Basename qw(dirname);
+use File::Path qw(mkpath);
 use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile);
 
@@ -246,7 +248,7 @@ been the version for another package. For example:
 			my $version  = $module->{version_info}{value};
 			$version = $version->numify if eval { $version->can('numify') };
 
-			( my $version_variable = $module->{version_info}{identifier} )
+			( my $version_variable = $module->{version_info}{identifier} || '' )
 				=~ s/(?:\:\:)?VERSION$//;
 			$reporter_logger->debug( "Package from version variable is $version_variable" );
 			
@@ -422,7 +424,7 @@ sub create_checksums
 	foreach my $dir ( @$dirs )
 		{
 		my $rc = eval{ CPAN::Checksums::updatedir( $dir ) };
-			$reporter_logger->error( "Couldn't create CHECKSUMS for $dir: $@" );
+			$reporter_logger->error( "Couldn't create CHECKSUMS for $dir: $@" ) if $@;
 			$reporter_logger->info(
 				do {
 					  if(    $rc == 1 ) { "Valid CHECKSUMS file is already present" }
