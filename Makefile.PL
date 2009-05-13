@@ -22,8 +22,6 @@ WriteMakefile(
 		},
 
 	'EXE_FILES'    => [ 'script/dpan' ],
-	
-	'MAN3PODS'     => {},
 
 	clean  => { FILES    => q|MyCPAN-*| },
 

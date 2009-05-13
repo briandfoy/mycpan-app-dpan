@@ -47,4 +47,12 @@ sub default
 	}
 }
 
+sub run
+	{
+	my $class = shift;
+	
+	print "dpan $VERSION\n";
+
+	$class->SUPER::run( @_ );
+	}
 1;
