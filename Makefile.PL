@@ -26,7 +26,6 @@ WriteMakefile(
 		'lib/App-DPAN.pm'         => '$(INST_LIBDIR)/DPAN.pm',
 		},
 
-	'MAN3PODS'     => {},
 
 	'EXE_FILES'    => [ qw(script/dpan) ],
 	

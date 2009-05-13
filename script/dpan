@@ -42,6 +42,9 @@ and F<03modlist.data.gz>.
 
 =head2 Configuration options
 
+If you don't specify these values in a configuation file, C<dpan> will
+use its defaults.
+
 =over 4
 
 =item report_dir
@@ -95,7 +98,7 @@ The Perl class to use as the indexing class. It has to at least
 provide a run method. See MyCPAN::Indexer::Tutorial for details
 on indexing classes.
 
-Default: MyCPAN::Indexer::DPAN
+Default: MyCPAN::App::DPAN::Indexer
 
 =item queue_class MyCPAN::Indexer::Queue
 
@@ -135,9 +138,9 @@ The Perl class to use as the reporter class. It has to at least
 provide a run method. See MyCPAN::Indexer::Tutorial for details
 on reporter classes.
 
-Default: MyCPAN::Indexer::DPAN
+Default: MyCPAN::App::DPAN::Indexer
 
-=item parallel_jobs 4
+=item parallel_jobs
 
 The number of parallel jobs to run.
 

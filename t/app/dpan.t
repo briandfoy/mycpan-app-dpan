@@ -15,4 +15,4 @@ isa_ok( $config, $class->config_class );
 
 is( $config->indexer_class, 'MyCPAN::App::Indexer::DPAN' );
 
-can_ok( $class, 'run' );
+can_ok( $class, 'activate' );

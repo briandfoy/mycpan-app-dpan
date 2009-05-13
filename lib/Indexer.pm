@@ -1,35 +1,39 @@
-package MyCPAN::App::Indexer::DPAN;
+#!/usr/bin/perl
+
+package MyCPAN::App::DPAN::Indexer;
 use strict;
+
 use warnings;
+no warnings;
 
 use subs qw(get_caller_info);
 use vars qw($VERSION $indexer_logger $reporter_logger);
+use base qw(MyCPAN::Indexer MyCPAN::Indexer::Reporter::AsYAML);
 
-# don't change the inheritance order
-# this should be done with roles, but we don't quite have that yet
-# it's a problem with who's cleanup() get called
-use base qw(MyCPAN::App::BackPAN::Indexer MyCPAN::Indexer MyCPAN::Indexer::Reporter::AsYAML);
-
-use Cwd qw(cwd);
-use File::Temp qw(tempdir);
+use File::Basename;
 use File::Spec::Functions qw(catfile);
+use File::Path;
+use YAML;
 
-$VERSION = '1.18_04';
+$VERSION = '1.18';
 
 =head1 NAME
 
-MyCPAN::App::Indexer::DPAN - Create a D(ark)PAN out of the indexed distributions
+MyCPAN::Indexer::DPAN - Create a D(ark)PAN out of the indexed distributions
 
 =head1 SYNOPSIS
 
 	use MyCPAN::Indexer;
 
+	# This is a plugin for MyCPAN::Indexer. See that module for
+	# instructions.
+	
 =head1 DESCRIPTION
 
-This module implements the indexer_class and reporter_class components
+This module implements the C<indexer_class> and C<reporter_class> components
 to allow C<backpan_indexer.pl> to create a CPAN-like directory structure
-with its associated index files. This application of MyCPAN::Indexer is 
-specifically aimed at creating a 02packages.details file, so it 
+with its associated index files. This application of C<MyCPAN::Indexer> is 
+specifically aimed at creating a F<02packages.details.txt> file, so it 
 strives to collect a minimum of information.
 
 It runs through the indexing and prints a report at the end of the run.
@@ -37,7 +41,7 @@ It runs through the indexing and prints a report at the end of the run.
 =cut
 
 use Carp qw(croak);
-use Cwd   qw(cwd);
+use Cwd qw(cwd);
 
 use Log::Log4perl;
 
@@ -46,11 +50,7 @@ BEGIN {
 	$reporter_logger = Log::Log4perl->get_logger( 'Reporter' );
 	}
 
-# Override the exit from the parent class so we can embed a run
-# inside a bigger application
-sub _exit { 1 }
-
-__PACKAGE__->activate( @ARGV ) unless caller;
+__PACKAGE__->run( @ARGV ) unless caller;
 
 =head2 Indexer class
 
@@ -71,9 +71,9 @@ sub examine_dist_steps
 	{
 	my @methods = (
 		#    method                error message                  fatal
-		[ 'unpack_dist',        "Could not unpack distribtion!",     1 ],
-		[ 'find_dist_dir',      "Did not find distro directory!",    1 ],
-		[ 'find_modules',       "Could not find modules!",           1 ],
+		[ 'unpack_dist',        'Could not unpack distribtion!',     1 ],
+		[ 'find_dist_dir',      'Did not find distro directory!',    1 ],
+		[ 'find_modules',       'Could not find modules!',           1 ],
 		);
 	}
 
@@ -88,10 +88,10 @@ C<MyCPAN::Indexer::find_modules>.
 sub find_module_techniques
 	{
 	my @methods = (
-		[ 'look_in_lib',               "Guessed from looking in lib/"      ],
-		[ 'look_in_cwd',               "Guessed from looking in cwd"       ],
-		[ 'look_in_meta_yml_provides', "Guessed from looking in META.yml"  ],
-		[ 'look_for_pm',               "Guessed from looking in cwd"       ],
+		[ 'look_in_lib',               'Guessed from looking in lib/'      ],
+		[ 'look_in_cwd',               'Guessed from looking in cwd'       ],
+		[ 'look_in_meta_yml_provides', 'Guessed from looking in META.yml'  ],
+		[ 'look_for_pm',               'Guessed from looking in cwd'       ],
 		);
 	}
 
@@ -107,7 +107,7 @@ sub get_module_info_tasks
 	{
 	(
 	[ 'extract_module_namespaces',   'Extract the namespaces a file declares' ],
-	[ 'extract_module_version',       'Extract the version of the module'     ],
+	[ 'extract_module_version',      'Extract the version of the module'      ],
 	)
 	}
 	
@@ -155,7 +155,7 @@ sub setup_dist_info
 	my( $self, $dist ) = @_;
 
 	$indexer_logger->debug( "Setting dist [$dist]\n" );
-	$self->set_dist_info( 'dist_file',     $dist                   );
+	$self->set_dist_info( 'dist_file', $dist );
 
 	return 1;
 	}
@@ -312,7 +312,7 @@ sub guess_package_name
 	{
 	my( $self, $module_info ) = @_;
 	
-	
+	# XXX
 	}
 
 =item get_package_version( MODULE_INFO, PACKAGE )
@@ -325,7 +325,7 @@ primary one that you should index.
 
 sub get_package_version
 	{
-	
+	# XXX
 	
 	}
 	
@@ -345,31 +345,36 @@ There isn't a way to configure additional packages yet.
 
 =cut
 
+BEGIN {
+my %skips = map { $_, 1 } qw(main bytes MY MM DB DynaLoader);
+
 sub skip_package
 	{
+	my( $class, $package ) = @_;
 	
-	
+	exists $skips{ $package };
 	}
-	
+}
+
 =item create_package_details
 
-Not yet implemented. Otehr code needs to be refactored and show up
+Not yet implemented. Other code needs to be refactored and show up
 here.
 
 =cut
 
 sub create_package_details
-      {
-      my( $self, $index_dir ) = @_;
-      
-              
-      1;
-      }
-      
+	{
+	my( $self, $index_dir ) = @_;
+	
+		
+	1;
+	}
+	
 =item create_modlist
 
-If a modules/03modlist.data.gz does not already exist, this creates a
-placeholder which defines the CPAN::Modulelist package and the method
+If a F<modules/03modlist.data.gz> does not already exist, this creates a
+placeholder which defines the C<CPAN::Modulelist> package and the method
 C<data> in that package. The C<data> method returns an empty hash
 reference.
 
@@ -381,13 +386,13 @@ sub create_modlist
 	
 	my $module_list_file = catfile( $index_dir, '03modlist.data.gz' );
 	$reporter_logger->debug( "modules list file is [$module_list_file]");
-	
+
 	if( -e $module_list_file )
 		{
-		$reporter_logger->debug( "File [$module_list_file] already exists!" );
+		$reporter_logger->debug( "File [$module_list_file] already exists" );
 		return 1;
 		}
-              
+		
 	my $fh = IO::Compress::Gzip->new( $module_list_file );
 	print $fh <<"HERE";
 File:        03modlist.data
@@ -405,11 +410,11 @@ HERE
 
 	close $fh;
 	}
-      
+	
 =item create_checksums
 
-Creates the CHECKSUMS file that goes in each author directory in CPAN.
-This is mostly a wrapper around CPAN::Checksums since that already handles
+Creates the F<CHECKSUMS> file that goes in each author directory in CPAN.
+This is mostly a wrapper around C<CPAN::Checksums> since that already handles
 updating an entire tree. We just do a little logging.
 
 =cut
@@ -421,17 +426,17 @@ sub create_checksums
 	require CPAN::Checksums;
 	foreach my $dir ( @$dirs )
 		{
-		my $rc = eval{ CPAN::Checksums::updatedir( $dir ) };
-			$reporter_logger->error( "Couldn't create CHECKSUMS for $dir: $@" );
-			$reporter_logger->info(
-				do {
-					  if(    $rc == 1 ) { "Valid CHECKSUMS file is already present" }
-					  elsif( $rc == 2 ) { "Wrote new CHECKSUMS file in $dir" }
-					  else              { "updatedir unexpectedly returned an error" }
-				} );
-		}       
+        my $rc = eval{ CPAN::Checksums::updatedir( $dir ) };
+		$reporter_logger->error( "Couldn't create CHECKSUMS for $dir: $@") unless $rc;
+		$reporter_logger->info(
+			do {
+				if(    $rc == 1 ) { "Valid CHECKSUMS file is already present in $dir: skipping" }
+				elsif( $rc == 2 ) { "Wrote new CHECKSUMS file in $dir" }
+				else              { "updatedir unexpectedly returned true [$rc] for $dir" }
+			} );
+		}	
 	}
-      
+	
 =back
 
 =head1 TO DO
@@ -448,8 +453,7 @@ sub create_checksums
 
 This code is in Github:
 
-      git://github.com/briandfoy/mycpan-indexer.git
-      git://github.com/briandfoy/mycpan-app-dpan.git
+	git://github.com/briandfoy/mycpan-app-dpan.git
 
 =head1 AUTHOR
 
@@ -462,3 +466,5 @@ Copyright (c) 2008-2009, brian d foy, All Rights Reserved.
 You may redistribute this under the same terms as Perl itself.
 
 =cut
+
+1;
