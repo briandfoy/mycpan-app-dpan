@@ -70,24 +70,13 @@ the find the modules.
 =cut
 
 sub examine_dist_steps
-	{
-	my( $self ) = @_;
-	
+	{	
 	my @methods = (
 		#    method                error message                  fatal
 		[ 'unpack_dist',        "Could not unpack distribtion!",     1 ],
 		[ 'find_dist_dir',      "Did not find distro directory!",    1 ],
 		[ 'find_modules',       "Could not find modules!",           1 ],
 		);
-		
-	my $organize_dists = eval{ $self->{Notes}{Config}->get('organize_dists') };
-	
-	if( $organize_dists )
-		{
-		push @methods, 
-			[ 'copy_dist_into_authors', "Could not copy dist into authors!", 0 ];
-		}
-	
 	}
 
 =item find_modules_techniques
