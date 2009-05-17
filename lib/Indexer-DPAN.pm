@@ -76,6 +76,10 @@ sub examine_dist_steps
 		[ 'unpack_dist',        "Could not unpack distribtion!",     1 ],
 		[ 'find_dist_dir',      "Did not find distro directory!",    1 ],
 		[ 'find_modules',       "Could not find modules!",           1 ],
+		[ 'find_modules',       "Could not find modules!",           1 ],
+		[ 'examine_modules',    "Could not process modules!",        0 ],
+		[ 'find_tests',         "Could not find tests!",             0 ],
+		[ 'examine_tests',      "Could not process tests!",          0 ],
 		);
 	}
 
