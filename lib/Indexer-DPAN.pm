@@ -30,8 +30,8 @@ MyCPAN::App::Indexer::DPAN - Create a D(ark)PAN out of the indexed distributions
 
 This module implements the indexer_class and reporter_class components
 to allow C<backpan_indexer.pl> to create a CPAN-like directory structure
-with its associated index files. This application of MyCPAN::Indexer is 
-specifically aimed at creating a 02packages.details file, so it 
+with its associated index files. This application of MyCPAN::Indexer is
+specifically aimed at creating a 02packages.details file, so it
 strives to collect a minimum of information.
 
 It runs through the indexing and prints a report at the end of the run.
@@ -70,7 +70,7 @@ the find the modules.
 =cut
 
 sub examine_dist_steps
-	{	
+	{
 	my @methods = (
 		#    method                error message                  fatal
 		[ 'unpack_dist',        "Could not unpack distribtion!",     1 ],
@@ -112,7 +112,7 @@ sub get_module_info_tasks
 	[ 'extract_module_version',       'Extract the version of the module'     ],
 	)
 	}
-	
+
 =item setup_run_info
 
 Like C<setup_run_info> in C<MyCPAN::Indexer>, but it remembers fewer
@@ -202,7 +202,7 @@ sub final_words
 	my $package_details = CPAN::PackageDetails->new;
 
 	$reporter_logger->info( "Creating index files" );
-	
+
 	require version;
 	foreach my $file ( readdir( $dh ) )
 		{
@@ -214,32 +214,32 @@ sub final_words
 			};
 
 		my $dist_file = $yaml->{dist_info}{dist_file};
-		
+
 		#print STDERR "Dist file is $dist_file\n";
-		
+
 		# some files may be left over from earlier runs, even though the
 		# original distribution has disappeared. Only index distributions
 		# that are still there
 		#my @backpan_dirs = @{ $Notes->{config}->backpan_dir };
 		# check that dist file is in one of these directories
 		next unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
-		
+
 		my $dist_dir = dirname( $dist_file );
-		
+
 		$dirs_needing_checksums{ $dist_dir }++;
 
-=pod 
+=pod
 
 This is the big problem. Since we didn't really parse the source code, we
 don't really know how to match up packages and VERSIONs. The best we can
-do right now is assume that a $VERSION we found goes with the packages 
+do right now is assume that a $VERSION we found goes with the packages
 we found.
 
-Additionally, that package variable my have been in one package, but 
+Additionally, that package variable my have been in one package, but
 been the version for another package. For example:
 
 	package DBI;
-	
+
 	$DBI::PurePerl::VERSION = 1.23;
 
 =cut
@@ -253,7 +253,7 @@ been the version for another package. For example:
 			( my $version_variable = $module->{version_info}{identifier} || '' )
 				=~ s/(?:\:\:)?VERSION$//;
 			$reporter_logger->debug( "Package from version variable is $version_variable" );
-			
+
 			PACKAGE: foreach my $package ( @$packages )
 				{
 				if( $version_variable && $version_variable ne $package )
@@ -261,19 +261,19 @@ been the version for another package. For example:
 					$reporter_logger->debug( "Skipping package [$package] since version variable [$version_variable] is in a different package" );
 					next;
 					}
-					
+
 				# broken crap that works on Unix and Windows to make cpanp
 				# happy.
 				( my $path = $dist_file ) =~ s/.*authors.id.//g;
-				
+
 				$path =~ s|\\+|/|g; # no windows paths.
-				
+
 				if( $class->skip_package( $package ) )
 					{
 					$reporter_logger->debug( "Skipping $package: excluded by config" );
 					next PACKAGE;
 					}
-					
+
 				$package_details->add_entry(
 					'package name' => $package,
 					version        => $version,
@@ -308,31 +308,31 @@ been the version for another package. For example:
 =item guess_package_name
 
 Given information about the module, make a guess about which package
-is the primary one. This is 
+is the primary one. This is
 
 =cut
 
 sub guess_package_name
 	{
 	my( $self, $module_info ) = @_;
-	
-	
+
+
 	}
 
 =item get_package_version( MODULE_INFO, PACKAGE )
 
-Get the $VERSION associated with PACKAGE. You probably want to use 
-C<guess_package_name> first to figure out which package is the 
+Get the $VERSION associated with PACKAGE. You probably want to use
+C<guess_package_name> first to figure out which package is the
 primary one that you should index.
 
 =cut
 
 sub get_package_version
 	{
-	
-	
+
+
 	}
-	
+
 =item skip_package( PACKAGE )
 
 Returns true if the indexer should ignore PACKAGE.
@@ -344,17 +344,17 @@ By default, this skips the Perl special packages:
 	MM
 	DB
 	bytes
-	
+
 There isn't a way to configure additional packages yet.
 
 =cut
 
 sub skip_package
 	{
-	
-	
+
+
 	}
-	
+
 =item create_package_details
 
 Not yet implemented. Otehr code needs to be refactored and show up
@@ -365,11 +365,11 @@ here.
 sub create_package_details
       {
       my( $self, $index_dir ) = @_;
-      
-              
+
+
       1;
       }
-      
+
 =item create_modlist
 
 If a modules/03modlist.data.gz does not already exist, this creates a
@@ -382,16 +382,16 @@ reference.
 sub create_modlist
 	{
 	my( $self, $index_dir ) = @_;
-	
+
 	my $module_list_file = catfile( $index_dir, '03modlist.data.gz' );
 	$reporter_logger->debug( "modules list file is [$module_list_file]");
-	
+
 	if( -e $module_list_file )
 		{
 		$reporter_logger->debug( "File [$module_list_file] already exists!" );
 		return 1;
 		}
-              
+
 	my $fh = IO::Compress::Gzip->new( $module_list_file );
 	print $fh <<"HERE";
 File:        03modlist.data
@@ -409,7 +409,7 @@ HERE
 
 	close $fh;
 	}
-      
+
 =item create_checksums
 
 Creates the CHECKSUMS file that goes in each author directory in CPAN.
@@ -421,7 +421,7 @@ updating an entire tree. We just do a little logging.
 sub create_checksums
 	{
 	my( $self, $dirs ) = @_;
-	
+
 	require CPAN::Checksums;
 	foreach my $dir ( @$dirs )
 		{
@@ -433,9 +433,9 @@ sub create_checksums
 					  elsif( $rc == 2 ) { "Wrote new CHECKSUMS file in $dir" }
 					  else              { "updatedir unexpectedly returned an error" }
 				} );
-		}       
+		}
 	}
-      
+
 =back
 
 =head1 TO DO

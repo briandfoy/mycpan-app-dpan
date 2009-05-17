@@ -23,11 +23,11 @@ my %Defaults = (
 	organize_dists        => 1,
 	);
 
-sub default 
-	{ 
-	exists $Defaults{ $_[1] } 
+sub default
+	{
+	exists $Defaults{ $_[1] }
 		?
-	$Defaults{ $_[1] } 
+	$Defaults{ $_[1] }
 		:
 	$_[0]->SUPER::default( $_[1] );
 	}
