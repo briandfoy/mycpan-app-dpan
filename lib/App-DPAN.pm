@@ -5,9 +5,11 @@ use warnings;
 use base qw( MyCPAN::App::Indexer::DPAN );
 use vars qw($VERSION);
 
+use Carp;
 use Cwd qw(cwd);
 use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile);
+use Log::Log4perl;
 
 $VERSION = '1.18_04';
 
@@ -21,6 +23,7 @@ my %Defaults = (
 	reporter_class        => 'MyCPAN::App::Indexer::DPAN',
 	parallel_jobs         => 1,
 	organize_dists        => 1,
+	pause_id              => 'DPAN',
 	);
 
 sub default
@@ -31,6 +34,8 @@ sub default
 		:
 	$_[0]->SUPER::default( $_[1] );
 	}
+
+my $logger = Log::Log4perl->get_logger( 'backpan_indexer' );
 }
 
 1;

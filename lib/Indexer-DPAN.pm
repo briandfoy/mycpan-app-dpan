@@ -49,7 +49,8 @@ BEGIN {
 	}
 
 # Override the exit from the parent class so we can embed a run
-# inside a bigger application
+# inside a bigger application. Applications should override this
+# on their own to do any final processing they want.
 sub _exit { 1 }
 
 __PACKAGE__->activate( @ARGV ) unless caller;
@@ -73,9 +74,8 @@ sub examine_dist_steps
 	{
 	my @methods = (
 		#    method                error message                  fatal
-		[ 'unpack_dist',        "Could not unpack distribtion!",     1 ],
+		[ 'unpack_dist',        "Could not unpack distribution!",    1 ],
 		[ 'find_dist_dir',      "Did not find distro directory!",    1 ],
-		[ 'find_modules',       "Could not find modules!",           1 ],
 		[ 'find_modules',       "Could not find modules!",           1 ],
 		[ 'examine_modules',    "Could not process modules!",        0 ],
 		[ 'find_tests',         "Could not find tests!",             0 ],
