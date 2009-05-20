@@ -1,5 +1,9 @@
 # Changes for DarkPAN::Creator
 
+1.21 - Wed May 20 14:32:45 2009
+	* Handle exit on our own to prevent applications using
+	an embedded indexer from stopping prematurely.
+
 1.18_04 - Sat May  9 02:07:47 2009
 	* Worked out some inheritance issues. I really need to use
 	roles.
