@@ -11,7 +11,7 @@ use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile);
 use Log::Log4perl;
 
-$VERSION = '1.18_04';
+$VERSION = '1.21';
 
 BEGIN {
 my $cwd = cwd();
