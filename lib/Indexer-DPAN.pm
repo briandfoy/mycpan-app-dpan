@@ -127,10 +127,6 @@ sub setup_run_info
 	{
 #	TRACE( sub { get_caller_info } );
 
-	require Config;
-
-	my $perl = Probe::Perl->new;
-
 	$_[0]->set_run_info( 'root_working_dir', cwd()   );
 	$_[0]->set_run_info( 'run_start_time',   time    );
 	$_[0]->set_run_info( 'completed',        0       );
@@ -370,12 +366,12 @@ here.
 =cut
 
 sub create_package_details
-      {
-      my( $self, $index_dir ) = @_;
+    {
+    my( $self, $index_dir ) = @_;
 
 
-      1;
-      }
+    1;
+    }
 
 =item create_modlist
 
