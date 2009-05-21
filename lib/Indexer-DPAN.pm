@@ -313,6 +313,8 @@ been the version for another package. For example:
 Given information about the module, make a guess about which package
 is the primary one. This is
 
+NOT YET IMPLEMENTED
+
 =cut
 
 sub guess_package_name
@@ -327,6 +329,8 @@ sub guess_package_name
 Get the $VERSION associated with PACKAGE. You probably want to use
 C<guess_package_name> first to figure out which package is the
 primary one that you should index.
+
+NOT YET IMPLEMENTED
 
 =cut                                    
 
@@ -352,11 +356,14 @@ There isn't a way to configure additional packages yet.
 
 =cut
 
+{
+my %skip_packages = map { $_, 1 } qw(main MY MM DB bytes);
+
 sub skip_package
 	{
-
-
+	exists $skip_packages{ $_[1] }
 	}
+}
 
 =item create_package_details
 
