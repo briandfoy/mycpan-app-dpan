@@ -14,7 +14,7 @@ use Cwd qw(cwd);
 use File::Basename qw(dirname);
 use File::Path qw(mkpath);
 use File::Temp qw(tempdir);
-use File::Spec::Functions qw(catfile);
+use File::Spec::Functions qw(catfile rel2abs);
 
 $VERSION = '1.21';
 
@@ -267,7 +267,8 @@ been the version for another package. For example:
 					}
 
 				# broken crap that works on Unix and Windows to make cpanp
-				# happy.
+				# happy. It assumes that authors/id/ is in front of the path
+				# in 02paackages
 				( my $path = $dist_file ) =~ s/.*authors.id.//g;
 
 				$path =~ s|\\+|/|g; # no windows paths.
@@ -287,26 +288,30 @@ been the version for another package. For example:
 			}
 		}
 
-	my $dir = do {
+	my $index_dir = do {
 		my $d = $Notes->{config}->backpan_dir;
-		ref $d ? $d->[0] : $d;
+		
+		# there might be more than one if we pull from multiple sources
+		# so make the index in the first one.
+		my $abs = rel2abs( ref $d ? $d->[0] : $d );
+		$abs =~ s/authors.id.*//;
+		catfile( $abs, 'modules' );
 		};
-
-	( my $packages_dir = $dir ) =~ s/authors.id.*//;
-	$reporter_logger->debug( "package details directory is [$packages_dir]");
-
-	my $index_dir     = catfile( $packages_dir, 'modules' );
-	mkpath( $index_dir );
+	
+	mkpath( $index_dir ) unless -d $index_dir;
 
 	my $packages_file = catfile( $index_dir, '02packages.details.txt.gz' );
-	$reporter_logger->debug( "package details file is [$packages_file]");
 
+	$reporter_logger->info( "Writing 02packages.details.txt.gz" );	
 	$package_details->write_file( $packages_file );
 
+	$reporter_logger->info( "Writing 03modlist.txt.gz" );	
 	$class->create_modlist( $index_dir );
 
+	$reporter_logger->info( "Creating CHECKSUMS files" );	
 	$class->create_checksums( [ keys %dirs_needing_checksums ] );
 
+	1;
 	}
 
 =item guess_package_name
@@ -329,7 +334,7 @@ Get the $VERSION associated with PACKAGE. You probably want to use
 C<guess_package_name> first to figure out which package is the
 primary one that you should index.
 
-=cut
+=cut                                    
 
 sub get_package_version
 	{
