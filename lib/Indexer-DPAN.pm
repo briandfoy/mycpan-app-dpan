@@ -16,7 +16,7 @@ use File::Path qw(mkpath);
 use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile rel2abs);
 
-$VERSION = '1.22';
+$VERSION = '1.23';
 
 =head1 NAME
 
@@ -201,6 +201,8 @@ sub final_words
 
 	$reporter_logger->info( "Creating index files" );
 
+	$class->_init_skip_package_from_config( $Notes );
+	
 	require version;
 	foreach my $file ( readdir( $dh ) )
 		{
@@ -282,6 +284,15 @@ been the version for another package. For example:
 			}
 		}
 
+	$class->_create_index_files( $Notes, $package_details, [ keys %dirs_needing_checksums ] );
+	
+	1;
+	}
+
+sub _create_index_files
+	{
+	my( $class, $Notes, $package_details, $dirs_needing_checksums ) = @_;
+	
 	my $index_dir = do {
 		my $d = $Notes->{config}->backpan_dir;
 		
@@ -303,11 +314,11 @@ been the version for another package. For example:
 	$class->create_modlist( $index_dir );
 
 	$reporter_logger->info( "Creating CHECKSUMS files" );	
-	$class->create_checksums( [ keys %dirs_needing_checksums ] );
-
+	$class->create_checksums( $dirs_needing_checksums );
+	
 	1;
 	}
-
+	
 =item guess_package_name
 
 Given information about the module, make a guess about which package
@@ -321,7 +332,7 @@ sub guess_package_name
 	{
 	my( $self, $module_info ) = @_;
 
-
+	
 	}
 
 =item get_package_version( MODULE_INFO, PACKAGE )
@@ -344,24 +355,52 @@ sub get_package_version
 
 Returns true if the indexer should ignore PACKAGE.
 
-By default, this skips the Perl special packages:
+By default, this skips the Perl special packages specified by the
+ignore_packages configuration. By default, ignore packages is:
 
 	main
-	MY
+	MY 
 	MM
 	DB
 	bytes
+	DynaLoader
 
-There isn't a way to configure additional packages yet.
+To set a different list, configure ignore_packages with a space
+separated list of packages to ignore:
+
+	ignore_packages main Foo Bar::Baz Test
+
+Note that this only ignores those exact packages. You can't configure
+this with regex or wildcards (yet).
 
 =cut
 
-{
-my %skip_packages = map { $_, 1 } qw(main MY MM DB bytes);
+BEGIN {
+my $initialized = 0;
+my %skip_packages;
 
+sub _skip_package_initialized { $initialized }
+	
+sub _init_skip_package_from_config
+	{
+	my( $self, $Notes ) = @_;
+	
+	print STDERR "Ignore packages is: ", $Notes->{config}->ignore_packages, "\n";
+	
+	%skip_packages =
+		map { $_, 1 }
+		grep { defined }
+		split /\s+/,
+		$Notes->{config}->ignore_packages || '';
+	
+	$initialized = 1;
+	}
+	
 sub skip_package
 	{
-	exists $skip_packages{ $_[1] }
+	my( $self, $package ) = @_;
+		
+	exists $skip_packages{ $package }
 	}
 }
 

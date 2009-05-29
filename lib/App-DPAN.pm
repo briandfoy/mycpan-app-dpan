@@ -2,16 +2,14 @@ package MyCPAN::App::DPAN;
 use strict;
 use warnings;
 
-use base qw( MyCPAN::App::Indexer::DPAN );
+use base qw(MyCPAN::App::Indexer::DPAN);
 use vars qw($VERSION);
 
-use Carp;
 use Cwd qw(cwd);
-use File::Temp qw(tempdir);
-use File::Spec::Functions qw(catfile);
+use File::Spec::Functions;
 use Log::Log4perl;
 
-$VERSION = '1.22';
+$VERSION = '1.23';
 
 BEGIN {
 my $cwd = cwd();
@@ -24,8 +22,15 @@ my %Defaults = (
 	parallel_jobs         => 1,
 	organize_dists        => 0,
 	pause_id              => 'DPAN',
+	ignore_packages       => 'main MY MM DB bytes DynaLoader',
 	);
 
+sub default_keys
+	{
+	my %Seen;
+	grep { ! $Seen{$_}++ } keys %Defaults, $_[0]->SUPER::default_keys;
+	}
+	
 sub default
 	{
 	exists $Defaults{ $_[1] }
