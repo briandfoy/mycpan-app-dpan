@@ -39,7 +39,7 @@ It runs through the indexing and prints a report at the end of the run.
 =cut
 
 use Carp qw(croak);
-use Cwd   qw(cwd);
+use Cwd  qw(cwd);
 
 use Log::Log4perl;
 
@@ -384,8 +384,6 @@ sub _skip_package_initialized { $initialized }
 sub _init_skip_package_from_config
 	{
 	my( $self, $Notes ) = @_;
-	
-	print STDERR "Ignore packages is: ", $Notes->{config}->ignore_packages, "\n";
 	
 	%skip_packages =
 		map { $_, 1 }

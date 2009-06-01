@@ -22,8 +22,9 @@ WriteMakefile(
 		},
 	
 	'PM'           => {
-		'lib/Indexer-DPAN.pm'     => '$(INST_LIBDIR)/Indexer/DPAN.pm',
-		'lib/App-DPAN.pm'         => '$(INST_LIBDIR)/DPAN.pm',
+		'lib/Indexer-DPAN.pm'  => '$(INST_LIBDIR)/Indexer/DPAN.pm',
+		'lib/App-DPAN.pm'      => '$(INST_LIBDIR)/DPAN.pm',
+		'lib/Minimal.pm'       => '$(INST_LIBDIR)/Reporter/Minimal.pm',
 		},
 
 
