@@ -1,5 +1,6 @@
 #!/usr/local/bin/perl
-use MyCPAN::App::DPAN;
+
+use MyCPAN::App::DPAN 1.23;
 
 MyCPAN::App::DPAN->activate( @ARGV );
 

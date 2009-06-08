@@ -2,12 +2,14 @@ package MyCPAN::App::DPAN::Reporter::Minimal;
 use strict;
 use warnings;
 
+use base qw(MyCPAN::Indexer::Reporter::Base);
 use vars qw($VERSION $logger);
-$VERSION = '1.23';
+$VERSION = '1.23_01';
 
 use Carp;
 use File::Basename;
-use File::Spec::Functions qw(catfile);
+use File::Path;
+use File::Spec::Functions qw(catfile rel2abs);
 use Log::Log4perl;
 
 BEGIN {
@@ -20,40 +22,43 @@ MyCPAN::App::DPAN::Reporter::Minimal - Save the minimum information that dpan ne
 
 =head1 SYNOPSIS
 
-Use this in the dpan config by specifying it as the reporter class:
+Use this in the C<dpan> config by specifying it as the reporter class:
 
-	# in backpan_indexer.config
+	# in dpan.config
 	reporter_class  MyCPAN::App::DPAN::Reporter::Minimal
 
 =head1 DESCRIPTION
 
-This class takes the result of examining a distribution and saves only the information
-that dpan needs to create the PAUSE index files. It's a very small text file
-with virtually no processing overhead compared to YAML.
+This class takes the result of examining a distribution and saves only
+the information that dpan needs to create the PAUSE index files. It's
+a very small text file with virtually no processing overhead compared
+to YAML.
 
 =head2 Methods
 
 =over 4
 
-=item get_reporter( $Notes )
+=item get_reporter
 
-C<get_reporter> sets the C<reporter> key in the C<$Notes> hash reference. The
-value is a code reference that takes the information collected about a distribution
-and dumps it as a YAML file.
+C<get_reporter> sets the C<reporter> key in the notes. The value is a
+code reference that takes the information collected about a
+distribution and dumps it as a YAML file.
 
-See L<MyCPAN::Indexer::Tutorial> for details about what C<get_reporter> expects
-and should do.
+See L<MyCPAN::Indexer::Tutorial> for details about what
+C<get_reporter> expects and should do.
 
 =cut
+
+sub get_report_file_extension { 'txt' }
 
 sub get_reporter
 	{
 	#TRACE( sub { get_caller_info } );
 
-	my( $class, $Notes ) = @_;
+	my( $self ) = @_;
 
-	$Notes->{reporter} = sub {
-		my( $Notes, $info ) = @_;
+	my $reporter = sub {
+		my( $info ) = @_;
 
 		unless( defined $info )
 			{
@@ -61,66 +66,53 @@ sub get_reporter
 			return;
 			}
 
-		my $dist = $info->dist_info( 'dist_file' );
-		$logger->error( "Info doesn't have dist_name! WTF?" ) unless $dist;
-
-		no warnings 'uninitialized';
-		( my $basename = basename( $dist ) ) =~ s/\.(tgz|tar\.gz|zip)$//;
-
-		my $out_dir_key  = $info->run_info( 'completed' ) ? 'success' : 'error';
-
-		$out_dir_key = 'error' if grep { $info->run_info($_) }
-			qw(error fatal_error);
-
-		my $out_path = catfile(
-			$Notes->{config}->get( "${out_dir_key}_report_subdir" ),
-			"$basename.txt"
-			);
+		my $out_path = $self->get_report_path( $info );
 
 		open my($fh), ">", $out_path or $logger->fatal( "Could not open $out_path: $!" );
-		print $fh "# Primary package [TAB] version [newline]\n";
+		print $fh "# Primary package [TAB] version [TAB] dist file [newline]\n";
 		foreach my $module ( @{ $info->{dist_info}{module_info} || [] } )
 			{
-			next 
-			my $version = $module->{version_info}{value};
+			# skip if we are ignoring those packages?
+			my $version = $module->{version_info}{value} || 'undef';
 			$version = $version->numify if eval { $version->can('numify') };
 
 			print $fh join "\t",
 				$module->{primary_package},
 				$version,
-				$module->{dist_file};
+				$info->{dist_info}{dist_file};
 				
 			print $fh "\n";
 			}
 		close $fh;
 
-		$logger->error( "$basename.yml is missing!" ) unless -e $out_path;
+		$logger->error( "$out_path is missing!" ) unless -e $out_path;
 
 		1;
 		};
-
-	1;
+		
+	$self->set_note( 'reporter', $reporter );
 	}
+	
+=item final_words
 
-=item final_words( $Notes )
+Runs after all the reporting for all distributions has finished. This
+creates a C<CPAN::PackageDetails> object and stores it as the C<package_details>
+notes. It store the list of directories that need fresh F<CHECKSUMS> files
+in the C<dirs_needing_checksums> note.
 
-C<get_reporter> sets the C<reporter> key in the C<$Notes> hash reference. The
-value is a code reference that takes the information collected about a distribution
-and counts the modules used in the test files.
-
-See L<MyCPAN::Indexer::Tutorial> for details about what C<get_reporter> expects
-and should do.
+The checksums and index file creation are split across two steps so that
+C<dpan> has a chance to do something between the analysis and their creation.
 
 =cut
 
 sub final_words
 	{
 	# This is where I want to write 02packages and CHECKSUMS
-	my( $class, $Notes ) = @_;
+	my( $self ) = @_;
 
 	$logger->trace( "Final words from the DPAN Reporter" );
 
-	my $report_dir = $Notes->{config}->success_report_subdir;
+	my $report_dir = $self->get_success_report_dir;
 	$logger->debug( "Report dir is $report_dir" );
 
 	opendir my($dh), $report_dir or
@@ -133,7 +125,7 @@ sub final_words
 
 	$logger->info( "Creating index files" );
 
-	$class->_init_skip_package_from_config( $Notes );
+	$self->_init_skip_package_from_config;
 	
 	require version;
 	FILE: foreach my $file ( readdir( $dh ) )
@@ -141,66 +133,57 @@ sub final_words
 		next unless $file =~ /\.txt\z/;
 		$logger->debug( "Processing output file $file" );
 		
-		open my($fh), '<', $file or do {
-			$logger->error( "Could not open file: $!" );
+		open my($fh), '<', catfile( $report_dir, $file ) or do {
+			$logger->error( "Could not open [$file]: $!" );
 			next FILE;
 			};
 		
-		MODULE: foreach my $module ( <$fh>  )
+		MODULE: while( <$fh>  )
 			{
+			next MODULE if /^\s*#/;
+			
 			chomp;
 			my( $package, $version, $dist_file ) = split /\t/;
 			
 			next MODULE unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
 			my $dist_dir = dirname( $dist_file );
 			$dirs_needing_checksums{ $dist_dir }++;
-			
 
-			( my $version_variable = $module->{version_info}{identifier} || '' )
-				=~ s/(?:\:\:)?VERSION$//;
-			$logger->debug( "Package from version variable is $version_variable" );
+			# broken crap that works on Unix and Windows to make cpanp
+			# happy. It assumes that authors/id/ is in front of the path
+			# in 02paackages
+			( my $path = $dist_file ) =~ s/.*authors.id.//g;
 
-			PACKAGE: foreach my $package ( @$packages )
+			$path =~ s|\\+|/|g; # no windows paths.
+
+			if( $self->skip_package( $package ) )
 				{
-				if( $version_variable && $version_variable ne $package )
-					{
-					$logger->debug( "Skipping package [$package] since version variable [$version_variable] is in a different package" );
-					next;
-					}
-
-				# broken crap that works on Unix and Windows to make cpanp
-				# happy. It assumes that authors/id/ is in front of the path
-				# in 02paackages
-				( my $path = $dist_file ) =~ s/.*authors.id.//g;
-
-				$path =~ s|\\+|/|g; # no windows paths.
-
-				if( $class->skip_package( $package ) )
-					{
-					$logger->debug( "Skipping $package: excluded by config" );
-					next PACKAGE;
-					}
-
-				$package_details->add_entry(
-					'package name' => $package,
-					version        => $version,
-					path           => $path,
-					);
+				$logger->debug( "Skipping $package: excluded by config" );
+				next PACKAGE;
 				}
+
+			$package_details->add_entry(
+				'package name' => $package,
+				version        => $version,
+				path           => $path,
+				);
 			}
 		}
 
-	$class->_create_index_files( $Notes, $package_details, [ keys %dirs_needing_checksums ] );
+	$self->set_note( 'package_details', $package_details );
+	$self->set_note( 'dirs_needing_checksums', [ keys %dirs_needing_checksums ] );
+
+	$self->_create_index_files;
 	
 	1;
 	}
 
 sub _create_index_files
 	{
-	my( $class, $Notes, $package_details, $dirs_needing_checksums ) = @_;
+	my( $self ) = @_;
 	
 	my $index_dir = do {
-		my $d = $Notes->{config}->backpan_dir;
+		my $d = $self->get_config->backpan_dir;
 		
 		# there might be more than one if we pull from multiple sources
 		# so make the index in the first one.
@@ -209,53 +192,24 @@ sub _create_index_files
 		catfile( $abs, 'modules' );
 		};
 	
-	mkpath( $index_dir ) unless -d $index_dir;
+	mkpath( $index_dir ) unless -d $index_dir; # XXX
 
 	my $packages_file = catfile( $index_dir, '02packages.details.txt.gz' );
 
+	my $package_details = $self->get_note( 'package_details' );
+	
 	$logger->info( "Writing 02packages.details.txt.gz" );	
 	$package_details->write_file( $packages_file );
 
 	$logger->info( "Writing 03modlist.txt.gz" );	
-	$class->create_modlist( $index_dir );
+	$self->create_modlist( $index_dir );
 
 	$logger->info( "Creating CHECKSUMS files" );	
-	$class->create_checksums( $dirs_needing_checksums );
+	$self->create_checksums( $self->get_note( 'dirs_needing_checksums' ) );
 	
 	1;
 	}
 	
-=item guess_package_name
-
-Given information about the module, make a guess about which package
-is the primary one. This is
-
-NOT YET IMPLEMENTED
-
-=cut
-
-sub guess_package_name
-	{
-	my( $self, $module_info ) = @_;
-
-	
-	}
-
-=item get_package_version( MODULE_INFO, PACKAGE )
-
-Get the $VERSION associated with PACKAGE. You probably want to use
-C<guess_package_name> first to figure out which package is the
-primary one that you should index.
-
-NOT YET IMPLEMENTED
-
-=cut                                    
-
-sub get_package_version
-	{
-
-
-	}
 
 =item skip_package( PACKAGE )
 
@@ -295,7 +249,7 @@ sub _init_skip_package_from_config
 		map { $_, 1 }
 		grep { defined }
 		split /\s+/,
-		$Notes->{config}->ignore_packages || '';
+		$self->get_config->ignore_packages || '';
 	
 	$initialized = 1;
 	}
@@ -337,11 +291,11 @@ sub create_modlist
 	my( $self, $index_dir ) = @_;
 
 	my $module_list_file = catfile( $index_dir, '03modlist.data.gz' );
-	$reporter_logger->debug( "modules list file is [$module_list_file]");
+	$logger->debug( "modules list file is [$module_list_file]");
 
 	if( -e $module_list_file )
 		{
-		$reporter_logger->debug( "File [$module_list_file] already exists!" );
+		$logger->debug( "File [$module_list_file] already exists!" );
 		return 1;
 		}
 
@@ -379,8 +333,8 @@ sub create_checksums
 	foreach my $dir ( @$dirs )
 		{
 		my $rc = eval{ CPAN::Checksums::updatedir( $dir ) };
-			$reporter_logger->error( "Couldn't create CHECKSUMS for $dir: $@" ) if $@;
-			$reporter_logger->info(
+			$logger->error( "Couldn't create CHECKSUMS for $dir: $@" ) if $@;
+			$logger->info(
 				do {
 					  if(    $rc == 1 ) { "Valid CHECKSUMS file is already present" }
 					  elsif( $rc == 2 ) { "Wrote new CHECKSUMS file in $dir" }
@@ -397,7 +351,7 @@ sub create_checksums
 
 This code is in Github:
 
-	git://github.com/briandfoy/mycpan-indexer.git
+	git://github.com/briandfoy/mycpan--app--dpan.git
 
 =head1 AUTHOR
 
@@ -405,7 +359,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2008-2009, brian d foy, All Rights Reserved.
+Copyright (c) 2009, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 

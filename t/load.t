@@ -1,5 +1,10 @@
 BEGIN {
-	@classes = qw(MyCPAN::Indexer);
+	@classes = qw(
+		MyCPAN::App::DPAN
+		MyCPAN::App::DPAN::Reporter::AsYAML
+		MyCPAN::App::DPAN::Reporter::Minimal
+		MyCPAN::App::DPAN::Indexer
+		);
 	}
 
 use Test::More tests => scalar @classes;

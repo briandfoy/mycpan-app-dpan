@@ -13,6 +13,6 @@ can_ok( $class, 'get_config' );
 my $config = $class->get_config;
 isa_ok( $config, $class->config_class );
 
-is( $config->indexer_class, 'MyCPAN::App::Indexer::DPAN' );
+is( $config->indexer_class, 'MyCPAN::App::DPAN::Indexer' );
 
 can_ok( $class, 'activate' );
