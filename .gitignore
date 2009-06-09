@@ -6,3 +6,4 @@ Makefile
 *.old
 MANIFEST.bak
 Changes.bak
+cover_db

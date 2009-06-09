@@ -58,7 +58,9 @@ MyCPAN::App::DPAN - Create a CPAN-like structure out of some dists
 	
 =head1 DESCRIPTION
 
-This module ties together all the bits to let the C<dpan> do its work.
+This module ties together all the bits to let the C<dpan> do its work. It
+overrides the defaults in C<MyCPAN::App::BackPAN::Indexer> to provide the
+right components.
 
 =cut
 

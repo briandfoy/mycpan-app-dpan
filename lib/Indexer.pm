@@ -71,13 +71,13 @@ the find the modules.
 
 sub examine_dist_steps
 	{
-	my @methods = (
-		#    method                error message                  fatal
-		[ 'unpack_dist',        "Could not unpack distribution!",    1 ],
-		[ 'find_dist_dir',      "Did not find distro directory!",    1 ],
-		[ 'find_modules',       "Could not find modules!",           1 ],
-		[ 'examine_modules',    "Could not process modules!",        0 ],
-		);
+	(
+	#    method                error message                  fatal
+	[ 'unpack_dist',        "Could not unpack distribution!",    1 ],
+	[ 'find_dist_dir',      "Did not find distro directory!",    1 ],
+	[ 'find_modules',       "Could not find modules!",           1 ],
+	[ 'examine_modules',    "Could not process modules!",        0 ],
+	);
 	}
 
 =item find_modules_techniques
@@ -90,12 +90,12 @@ C<MyCPAN::Indexer::find_modules>.
 
 sub find_module_techniques
 	{
-	my @methods = (
-		[ 'look_in_lib',               "Guessed from looking in lib/"      ],
-		[ 'look_in_cwd',               "Guessed from looking in cwd"       ],
-		[ 'look_in_meta_yml_provides', "Guessed from looking in META.yml"  ],
-		[ 'look_for_pm',               "Guessed from looking in cwd"       ],
-		);
+	(
+	[ 'look_in_lib',               "Guessed from looking in lib/"      ],
+	[ 'look_in_cwd',               "Guessed from looking in cwd"       ],
+	[ 'look_in_meta_yml_provides', "Guessed from looking in META.yml"  ],
+	[ 'look_for_pm',               "Guessed from looking in cwd"       ],
+	);
 	}
 
 =item get_module_info_tasks
