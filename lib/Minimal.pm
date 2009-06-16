@@ -115,14 +115,8 @@ sub final_words
 	{
 	# This is where I want to write 02packages and CHECKSUMS
 	my( $self ) = @_;
-print STDERR "Calling final words in Minimal\n";
+
 	$logger->trace( "Final words from the DPAN Reporter" );
-
-	my $report_dir = $self->get_success_report_dir;
-	$logger->debug( "Report dir is $report_dir" );
-
-	opendir my($dh), $report_dir or
-		$logger->fatal( "Could not open directory [$report_dir]: $!");
 
 	my %dirs_needing_checksums;
 
@@ -134,12 +128,11 @@ print STDERR "Calling final words in Minimal\n";
 	$self->_init_skip_package_from_config;
 	
 	require version;
-	FILE: foreach my $file ( readdir( $dh ) )
+	FILE: foreach my $file ( $self->get_latest_module_reports )
 		{
-		next unless $file =~ /\.txt\z/;
 		$logger->debug( "Processing output file $file" );
 		
-		open my($fh), '<', catfile( $report_dir, $file ) or do {
+		open my($fh), '<', $file or do {
 			$logger->error( "Could not open [$file]: $!" );
 			next FILE;
 			};
@@ -200,14 +193,33 @@ print STDERR "Calling final words in Minimal\n";
 
 	$self->set_note( 'package_details', $package_details );
 	$self->set_note( 'dirs_needing_checksums', [ keys %dirs_needing_checksums ] );
-
-	print STDERR "Calling _create_index_files\n";
-	$self->_create_index_files;
 	
 	1;
 	}
 
-sub _create_index_files
+sub get_latest_module_reports
+	{
+	my( $self, $directory ) = @_;
+	
+	my $report_dir = $self->get_success_report_dir;
+	$logger->debug( "Report dir is $report_dir" );
+
+	opendir my($dh), $report_dir or
+		$logger->fatal( "Could not open directory [$report_dir]: $!");
+
+	my %Seen = ();
+	my @files = 
+		map  { catfile( $report_dir, $_->[-1] ) }
+		grep { ! $Seen{$_->[0]}++ } 
+		map  { [ /^(.*)-(.*)\.txt\z/, $_ ] }
+		reverse 
+		sort 
+		grep { /\.txt\z/ } 
+		readdir( $dh );
+
+	}
+	
+sub create_index_files
 	{
 	my( $self ) = @_;
 	

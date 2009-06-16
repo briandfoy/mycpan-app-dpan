@@ -2,7 +2,13 @@
 
 use MyCPAN::App::DPAN 1.23;
 
-MyCPAN::App::DPAN->activate( @ARGV );
+my $application = MyCPAN::App::DPAN->activate( @ARGV );
+
+my $reporter = $application->get_coordinator->get_reporter;
+
+$reporter->final_words if eval { $reporter->can( 'final_words' ) };
+
+$application->activate_end;
 
 exit( 0 );
 

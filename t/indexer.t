@@ -5,6 +5,8 @@ use warnings;
 
 use Test::More 'no_plan';
 
+BEGIN { $INC{'Log/Log4perl.pm'} = 1; package Log::Log4perl; sub AUTOLOAD { __PACKAGE__ }; }
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 my $class = 'MyCPAN::App::DPAN::Indexer';
 use_ok( $class );

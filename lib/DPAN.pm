@@ -13,6 +13,8 @@ $VERSION = '1.23_01';
 
 BEGIN {
 
+$SIG{INT} = sub { exit };
+
 my $cwd = cwd();
 
 my $report_dir = catfile( $cwd, 'indexer_reports' );
@@ -46,6 +48,14 @@ sub default
 my $logger = Log::Log4perl->get_logger( 'backpan_indexer' );
 }
 
+sub activate_steps
+	{
+	qw(
+	process_options setup_coordinator setup_environment handle_config
+	setup_logging setup_dirs run_components
+	);
+	}
+
 sub components
 	{
 	(
@@ -54,10 +64,20 @@ sub components
 	[ qw( reporter   MyCPAN::App::DPAN::Reporter::Minimal  get_reporter   ) ],
 	[ qw( worker     MyCPAN::Indexer::Worker               get_task       ) ],
 	[ qw( interface  MyCPAN::Indexer::Interface::Text      do_interface   ) ],
-	[ qw( reporter   MyCPAN::App::DPAN::Reporter::Minimal  final_words    ) ],
 	)
 	}
 
+sub activate_end
+	{
+	my( $application ) = @_;
+	
+	print STDERR "Calling _create_index_files\n";
+	$application->get_reporter->create_index_files;
+
+	$application->SUPER::activate_end;
+	}
+	
+	
 1;
 
 =head1 NAME
@@ -68,13 +88,31 @@ MyCPAN::App::DPAN - Create a CPAN-like structure out of some dists
 
 	use MyCPAN::App::DPAN;
 	
-	MyCPAN::App::DPAN->activate( @ARGV );
+	my $application = MyCPAN::App::DPAN->activate( @ARGV );
+	
+	# do some other stuff, anything that you like
+	
+	$application->activate_end;
 	
 =head1 DESCRIPTION
 
 This module ties together all the bits to let the C<dpan> do its work. It
 overrides the defaults in C<MyCPAN::App::BackPAN::Indexer> to provide the
 right components.
+
+The work happens in two steps. When you call C<activate>, the program goes
+through all of the steps to examin each of the module distributions. It creates
+a report for each distribution, then stops. This pause right after the
+examination gives you the chance to do something right before the program
+creates the PAUSE index files. The examination might take several minutes
+(or even hours depending on how much you want to index), so you have a chance
+to check the state of the world before the next step.
+
+When you call C<activate_end>, the program takes the results from the 
+previous step and creates the PAUSE index files in the F<modules> directory.
+This step should be very quick since all of the information is ready-to-go.
+
+
 
 =cut
 
