@@ -12,6 +12,7 @@ use Log::Log4perl;
 $VERSION = '1.23_01';
 
 BEGIN {
+
 my $cwd = cwd();
 
 my $report_dir = catfile( $cwd, 'indexer_reports' );
@@ -19,6 +20,7 @@ my $report_dir = catfile( $cwd, 'indexer_reports' );
 my %Defaults = (
 	ignore_packages       => 'main MY MM DB bytes DynaLoader',
 	indexer_class         => 'MyCPAN::App::DPAN::Indexer',
+	dispatcher_class      => 'MyCPAN::Indexer::Dispatcher::Serial',
 	organize_dists        => 0,
 	parallel_jobs         => 1,
 	pause_id              => 'DPAN',
@@ -43,6 +45,18 @@ sub default
 
 my $logger = Log::Log4perl->get_logger( 'backpan_indexer' );
 }
+
+sub components
+	{
+	(
+	[ qw( queue      MyCPAN::Indexer::Queue                get_queue      ) ],
+	[ qw( dispatcher MyCPAN::Indexer::Dispatcher::Serial   get_dispatcher ) ],
+	[ qw( reporter   MyCPAN::App::DPAN::Reporter::Minimal  get_reporter   ) ],
+	[ qw( worker     MyCPAN::Indexer::Worker               get_task       ) ],
+	[ qw( interface  MyCPAN::Indexer::Interface::Text      do_interface   ) ],
+	[ qw( reporter   MyCPAN::App::DPAN::Reporter::Minimal  final_words    ) ],
+	)
+	}
 
 1;
 

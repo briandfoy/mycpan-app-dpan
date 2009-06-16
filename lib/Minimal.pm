@@ -76,6 +76,12 @@ sub get_reporter
 			my $version = $module->{version_info}{value} || 'undef';
 			$version = $version->numify if eval { $version->can('numify') };
 
+			$logger->warn( "No primary package for $module->{name}" )
+				unless defined $module->{primary_package};
+
+			$logger->warn( "No dist file for $module->{name}" )
+				unless defined $info->{dist_info}{dist_file};
+				
 			print $fh join "\t",
 				$module->{primary_package},
 				$version,
@@ -109,7 +115,7 @@ sub final_words
 	{
 	# This is where I want to write 02packages and CHECKSUMS
 	my( $self ) = @_;
-
+print STDERR "Calling final words in Minimal\n";
 	$logger->trace( "Final words from the DPAN Reporter" );
 
 	my $report_dir = $self->get_success_report_dir;
@@ -138,12 +144,14 @@ sub final_words
 			next FILE;
 			};
 		
-		MODULE: while( <$fh>  )
+		my @packages;
+		PACKAGE: while( <$fh>  )
 			{
-			next MODULE if /^\s*#/;
+			next PACKAGE if /^\s*#/;
 			
 			chomp;
 			my( $package, $version, $dist_file ) = split /\t/;
+			$version = undef if $version eq 'undef';
 			
 			next MODULE unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
 			my $dist_dir = dirname( $dist_file );
@@ -161,18 +169,39 @@ sub final_words
 				$logger->debug( "Skipping $package: excluded by config" );
 				next PACKAGE;
 				}
+			
+			push @packages, [ $package, $version, $path ];
+			}
+		
+		# Some distros declare the same package in multiple files. We
+		# only want the one with the defined or highest version
+		my %Seen;
+		my @filtered_packages =
+			grep { ! $Seen{$_->[0]}++ }
+			sort {
+				$a->[0] cmp $b->[0]
+					||
+				$b->[1] cmp $a->[1]  # yes, versions are strings
+				}
+			map { my $s = $_; $s->[1] = 'undef' unless defined $s->[1]; $s }
+			@packages;
 
-			$package_details->add_entry(
+		foreach my $tuple ( @filtered_packages )
+			{
+			my( $package, $version, $path ) = @$tuple;
+			
+			eval { $package_details->add_entry(
 				'package name' => $package,
 				version        => $version,
 				path           => $path,
-				);
+				) } or warn "Could not add $package $version from $path! $@\n";
 			}
 		}
 
 	$self->set_note( 'package_details', $package_details );
 	$self->set_note( 'dirs_needing_checksums', [ keys %dirs_needing_checksums ] );
 
+	print STDERR "Calling _create_index_files\n";
 	$self->_create_index_files;
 	
 	1;
