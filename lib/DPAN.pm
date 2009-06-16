@@ -25,7 +25,7 @@ my %Defaults = (
 	parallel_jobs         => 1,
 	pause_id              => 'DPAN',
 	reporter_class        => 'MyCPAN::App::DPAN::Reporter::Minimal',
-	backpan_dir           => [ $cwd ]
+	backpan_dir           => $cwd
 	);
 
 sub default_keys
