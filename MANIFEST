@@ -13,6 +13,8 @@ t/app/dpan.t
 t/compile.t
 t/get_latest_module_reports.t
 t/indexer.t
+t/indexer_reports/success/Foo-Bar-0.01.txt
+t/indexer_reports/success/Foo-Bar-0.02.txt
 t/load.t
 t/pod.t
 t/pod_coverage.t

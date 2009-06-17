@@ -25,7 +25,7 @@ examples/backpan_indexer.log
 research
 .*\.log
 tmproj
-indexer_reports
+^indexer_reports
 \.bbproj
 MyCPAN-App-*
 test-corpus

@@ -12,7 +12,7 @@ my $dir = 'test-corpus';
 my $executable = rel2abs( catfile( qw( blib script dpan ) ) );
 
 SKIP: {
-	skip "Test corpus is not present. Skipping tests.", 10 unless -d $dir;
+	skip "Test corpus is not present. Skipping tests.", 6 unless -d $dir;
 	
 	chdir $dir;
 	my $report_dir = 'indexer_reports';
