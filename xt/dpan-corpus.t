@@ -5,9 +5,12 @@ use warnings;
 use Test::More tests => 6;
 
 use File::Path qw(rmtree);
-use File::Spec::Functions;
+use File::Spec::Functions qw(rel2abs catfile);
 
 my $dir = 'test-corpus';
+
+my $executable = rel2abs( catfile( qw( blib script dpan ) ) );
+
 SKIP: {
 	skip "Test corpus is not present. Skipping tests.", 10 unless -d $dir;
 	
@@ -20,7 +23,7 @@ SKIP: {
 	rmtree $modules_dir;
 	ok( ! -d $modules_dir, "$modules_dir is gone" );
 	
-	system( '../blib/script/dpan' );
+	system( $executable );
 	
 	ok( -d $report_dir, "$report_dir is there now" );
 
