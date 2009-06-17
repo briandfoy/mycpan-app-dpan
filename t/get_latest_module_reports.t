@@ -22,6 +22,9 @@ ok( -d $mock->get_success_report_dir, 'Report directory exists' );
 
 my @files = $mock->get_latest_module_reports;
 
-is( scalar @files, 1, "There are not files yet" );
+is( scalar @files, 1, "There is only one report" );
 
-is( $files[0], catfile( $report_dir, 'Foo-Bar-0.02.txt' ) );
+is( $files[0], 
+	catfile( $report_dir, 'Foo-Bar-0.02.txt' ), 
+	'The report is the lastest one' 
+	);

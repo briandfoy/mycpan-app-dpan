@@ -71,8 +71,7 @@ sub activate_end
 	{
 	my( $application ) = @_;
 	
-	print STDERR "Calling _create_index_files\n";
-	$application->get_reporter->create_index_files;
+	$application->get_coordinator->get_reporter->create_index_files;
 
 	$application->SUPER::activate_end;
 	}
