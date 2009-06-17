@@ -7,3 +7,5 @@ Makefile
 MANIFEST.bak
 Changes.bak
 cover_db
+test-corpus/indexer_reports
+test-corpus/modules

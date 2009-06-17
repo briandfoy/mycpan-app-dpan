@@ -11,7 +11,10 @@ script/backpan_indexer.config.dpan
 script/dpan
 t/app/dpan.t
 t/compile.t
+t/get_latest_module_reports.t
+t/indexer.t
 t/load.t
 t/pod.t
 t/pod_coverage.t
 t/test_manifest
+xt/dpan-corpus.t

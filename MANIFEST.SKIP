@@ -28,3 +28,5 @@ tmproj
 indexer_reports
 \.bbproj
 MyCPAN-App-*
+test-corpus
+cover_db
