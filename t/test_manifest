@@ -5,3 +5,4 @@ pod_coverage.t
 indexer.t
 app/dpan.t
 get_latest_module_reports.t
+../xt/dpan-corpus.t
