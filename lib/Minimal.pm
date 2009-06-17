@@ -70,23 +70,26 @@ sub get_reporter
 
 		open my($fh), ">", $out_path or $logger->fatal( "Could not open $out_path: $!" );
 		print $fh "# Primary package [TAB] version [TAB] dist file [newline]\n";
-		foreach my $module ( @{ $info->{dist_info}{module_info} || [] } )
+		MODULE: foreach my $module ( @{ $info->{dist_info}{module_info} || [] } )
 			{
 			# skip if we are ignoring those packages?
 			my $version = $module->{version_info}{value} || 'undef';
 			$version = $version->numify if eval { $version->can('numify') };
 
-			$logger->warn( "No primary package for $module->{name}" )
-				unless defined $module->{primary_package};
+			unless( defined $module->{primary_package} )
+				{
+				$logger->warn( "No primary package for $module->{name}" );				
+				next MODULE;
+				}
 
 			$logger->warn( "No dist file for $module->{name}" )
 				unless defined $info->{dist_info}{dist_file};
-				
+
 			print $fh join "\t",
 				$module->{primary_package},
 				$version,
 				$info->{dist_info}{dist_file};
-				
+
 			print $fh "\n";
 			}
 		close $fh;
@@ -95,7 +98,7 @@ sub get_reporter
 
 		1;
 		};
-		
+
 	$self->set_note( 'reporter', $reporter );
 	}
 	
@@ -146,13 +149,15 @@ sub final_words
 			my( $package, $version, $dist_file ) = split /\t/;
 			$version = undef if $version eq 'undef';
 			
+			next PACKAGE unless defined $package;
+			
 			next PACKAGE unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
 			my $dist_dir = dirname( $dist_file );
 			$dirs_needing_checksums{ $dist_dir }++;
 
 			# broken crap that works on Unix and Windows to make cpanp
 			# happy. It assumes that authors/id/ is in front of the path
-			# in 02paackages
+			# in 02packages.details.txt
 			( my $path = $dist_file ) =~ s/.*authors.id.//g;
 
 			$path =~ s|\\+|/|g; # no windows paths.
