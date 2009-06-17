@@ -15,7 +15,7 @@ WriteMakefile(
 		'CPAN::Checksums'      => '0',
 		'CPAN::PackageDetails' => '0.18',
 		'Log::Log4perl'        => '0',
-		'MyCPAN::Indexer'      => '1.23',
+		'MyCPAN::Indexer'      => '1.24',
 		'Test::Output'         => '0.13',
 		'version'              => '0',
 		},
