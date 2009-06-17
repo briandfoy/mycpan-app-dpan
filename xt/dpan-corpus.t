@@ -34,5 +34,4 @@ SKIP: {
 	
 	my $modlist_file = catfile( $modules_dir, '03modlist.data.gz' );
  	ok( -e $modlist_file, "$modlist_file is there" );
- 
 	};

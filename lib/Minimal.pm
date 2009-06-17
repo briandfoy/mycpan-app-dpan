@@ -146,7 +146,7 @@ sub final_words
 			my( $package, $version, $dist_file ) = split /\t/;
 			$version = undef if $version eq 'undef';
 			
-			next MODULE unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
+			next PACKAGE unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
 			my $dist_dir = dirname( $dist_file );
 			$dirs_needing_checksums{ $dist_dir }++;
 
