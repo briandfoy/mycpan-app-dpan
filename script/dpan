@@ -2,6 +2,14 @@
 
 use MyCPAN::App::DPAN 1.23;
 
+if( grep /^-?-h(elp)?$/, @ARGV ) {	
+	require Pod::Usage;
+	
+	Pod::Usage::pod2usage(
+		-exitval => 1
+		);
+	}
+
 my $application = MyCPAN::App::DPAN->activate( @ARGV );
 
 my $reporter = $application->get_coordinator->get_reporter;
@@ -23,6 +31,10 @@ dpan - create a DarkPAN from directories
 	# from the command line
 	prompt> dpan [-l log4perl.config] [-f config] [directory [directory2]]
 
+	# get some help
+	prompt> dpan -h
+	prompt> dpan --help
+	
 =head1 DESCRIPTION
 
 The C<dpan> script takes a list of directories, indexes any Perl distributions
