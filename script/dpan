@@ -1,15 +1,24 @@
 #!/usr/local/bin/perl
 
-use MyCPAN::App::DPAN 1.23;
+use MyCPAN::App::DPAN 1.25;
+
+our $VERSION = '1.25';
 
 if( grep /^-?-h(elp)?$/, @ARGV ) {	
 	require Pod::Usage;
 	
 	Pod::Usage::pod2usage(
-		-exitval => 1
+		-exitval => 0
 		);
 	}
-
+elsif( grep /^-?-v(ersion)?$/, @ARGV )
+	{
+	print "dpan $VERSION using MyCPAN::App::DPAN ", 
+		MyCPAN::App::DPAN->VERSION, "\n";
+	
+	exit 0;	
+	}
+	
 my $application = MyCPAN::App::DPAN->activate( @ARGV );
 
 my $reporter = $application->get_coordinator->get_reporter;
