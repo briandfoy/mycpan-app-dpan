@@ -54,23 +54,19 @@ use its defaults.
 
 =over 4
 
-=item report_dir
-
-Where to store the distribution reports.
-
-Default: a directory named F<indexer_reports> in the current working directory
-	
-=item temp_dir
-
-Where to unpack the dists or create any temporary files.
-
-Default: a temp directory in the current working directory
-
 =item alarm
 
 The maximum amount of time allowed to index a distribution, in seconds.
 
 Default: 15
+
+=item backpan_dir
+
+The directory that has the distributions to archive. Remember, this is a
+subclass of MyCPAN::Indexer::App::BackPAN, so don't worry too much about
+the directive name.
+
+Default: the current working directory
 
 =item copy_bad_dists
 
@@ -79,25 +75,21 @@ so you can inspect them later.
 
 Default: 0
 
-=item retry_errors
+=item dispatcher_class 
 
-Try to index a distribution even if it was previously tried and
-had an error. This depends on previous reports being in C<report_dir>,
-so if you don't set that configuration directive, it won't matter.
+The Perl class to use as the dispatching class. It has to at least
+provide a run method. See MyCPAN::Indexer::Tutorial for details
+on dispatching classes.
 
-Default: 1
+Default: MyCPAN::Indexer::Dispatch::Serial
 
-=item indexer_id
+=item ignore_packages
 
-Give yourself a name so people who who ran C<dpan>.
+You can tell DPAN to ignore some namespaces. The indexer may still record
+them, but they won't show up in F<02packages.details.txt.gz>. It's a 
+space-separated list of exact package names
 
-Default: Joe Example <joe@example.com>
-
-=item system_id macbookpro
-
-Give the indexing system a name, just to identify the machine.
-
-Default: 'an unnamed machine'
+Default: main MY MM DB bytes DynaLoader
 
 =item indexer_class 
 
@@ -107,21 +99,11 @@ on indexing classes.
 
 Default: MyCPAN::App::DPAN::Indexer
 
-=item queue_class MyCPAN::Indexer::Queue
+=item indexer_id
 
-The Perl class to use as the queue class. It has to at least
-provide a run method. See MyCPAN::Indexer::Tutorial for details
-on queue classes.
+Give yourself a name so people who who ran C<dpan>.
 
-Default: MyCPAN::Indexer::Queue
-
-=item dispatcher_class 
-
-The Perl class to use as the dispatching class. It has to at least
-provide a run method. See MyCPAN::Indexer::Tutorial for details
-on dispatching classes.
-
-Default: MyCPAN::Indexer::Dispatch::Parallel
+Default: Joe Example <joe@example.com>
 
 =item interface_class 
 
@@ -131,13 +113,34 @@ on interface classes.
 
 Default: MyCPAN::Indexer::Interface::Text
 
-=item worker_class    
+=item organize_dists
 
-The Perl class to use as the worker class. It has to at least
+Take all of the distributions C<dpan> finds and put the into a PAUSE-like
+structure under F<authors/id/D/DP/DPAN>. You can change the author ID with
+the C<pause_id> directive.
+
+Default: 0
+
+=item parallel_jobs
+
+The number of parallel jobs to run. This only matters for dispatcher
+classes that can do more than one thing at a time.
+
+Default: 1
+
+=item pause_id
+
+The author ID to use if organize_dists is set to a true value. 
+
+Default: DPAN
+
+=item queue_class MyCPAN::Indexer::Queue
+
+The Perl class to use as the queue class. It has to at least
 provide a run method. See MyCPAN::Indexer::Tutorial for details
-on worker classes.
+on queue classes.
 
-Default: MyCPAN::Indexer::Worker
+Default: MyCPAN::Indexer::Queue
 
 =item reporter_class  
 
@@ -145,13 +148,41 @@ The Perl class to use as the reporter class. It has to at least
 provide a run method. See MyCPAN::Indexer::Tutorial for details
 on reporter classes.
 
-Default: MyCPAN::App::DPAN::Indexer
+Default: MyCPAN::App::DPAN::Reporter::Minimal
 
-=item parallel_jobs
+=item report_dir
 
-The number of parallel jobs to run.
+Where to store the distribution reports.
+
+Default: a directory named F<indexer_reports> in the current working directory
+	
+=item retry_errors
+
+Try to index a distribution even if it was previously tried and
+had an error. This depends on previous reports being in C<report_dir>,
+so if you don't set that configuration directive, it won't matter.
 
 Default: 1
+
+=item system_id macbookpro
+
+Give the indexing system a name, just to identify the machine.
+
+Default: 'an unnamed machine'
+
+=item temp_dir
+
+Where to unpack the dists or create any temporary files.
+
+Default: a temp directory in the current working directory
+
+=item worker_class    
+
+The Perl class to use as the worker class. It has to at least
+provide a run method. See MyCPAN::Indexer::Tutorial for details
+on worker classes.
+
+Default: MyCPAN::Indexer::Worker
 
 =back
 
@@ -163,7 +194,8 @@ MyCPAN::Indexer, MyCPAN::Indexer::DPAN
 
 This code is in Github:
 
-	git://github.com/briandfoy/mycpan-indexer.git
+      git://github.com/briandfoy/mycpan-indexer.git
+      git://github.com/briandfoy/mycpan--app--dpan.git
 
 =head1 AUTHOR
 
