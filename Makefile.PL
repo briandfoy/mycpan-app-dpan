@@ -13,9 +13,9 @@ WriteMakefile(
 	
 	'PREREQ_PM'    => { 
 		'CPAN::Checksums'      => '0',
-		'CPAN::PackageDetails' => '0.18',
+		'CPAN::PackageDetails' => '0.19',
 		'Log::Log4perl'        => '0',
-		'MyCPAN::Indexer'      => '1.24',
+		'MyCPAN::Indexer'      => '1.25',
 		'Test::Output'         => '0.13',
 		'version'              => '0',
 		},
