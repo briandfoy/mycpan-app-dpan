@@ -149,8 +149,26 @@ sub final_words
 			my( $package, $version, $dist_file ) = split /\t/;
 			$version = undef if $version eq 'undef';
 			
-			next PACKAGE unless defined $package && length $package;
-			
+			unless( defined $package && length $package )
+				{
+				$logger->debug( "File $file line $.: no package! Line is [$_]" );
+				next PACKAGE;
+				}
+
+=for comment
+
+Try this before we get this far
+
+			unless( exists $dist_file )
+				{
+				# What directory am I in?
+				$logger->warn( "Dist file [$dist_file] not found in DPAN" );
+				next PACKAGE;
+				}
+=end
+
+=cut
+
 			next PACKAGE unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
 			my $dist_dir = dirname( $dist_file );
 			$dirs_needing_checksums{ $dist_dir }++;
@@ -202,6 +220,14 @@ sub final_words
 	1;
 	}
 
+=item get_latest_module_reports
+
+Return the list of interesting reports for this indexing run.  This
+re-runs the queuer to get the final list of distributions in 
+backpan_dir (some things might have moved around), gets the reports for 
+
+=cut
+
 sub get_latest_module_reports
 	{
 	my( $self, $directory ) = @_;
@@ -212,6 +238,30 @@ sub get_latest_module_reports
 	opendir my($dh), $report_dir or
 		$logger->fatal( "Could not open directory [$report_dir]: $!");
 
+	# We have to recreate the queue because we might have moved
+	# things around with organize_dists
+	
+	my $queuer = $self->get_coordinator->get_component( 'queue' );
+
+	my @dirs = do {
+		my $item = $self->get_config->backpan_dir || '';
+		split /\s+/, $item;
+		};
+	
+	my $dists = $queuer->_get_file_list( @dirs );
+
+	# The code in this map is duplicated from MyCPAN::Indexer::Reporter::Base
+	# in get_report_filename. That method assumes it's getting a big data
+	# structure, so I need to refactor out this bit to _dist2report or
+	# something. I'll get it to work here first.
+	my %dist_reports = map {
+		( my $basename = basename( $_ ) ) =~ s/\.(tgz|tar\.gz|zip)$//;
+		my $report_name = join '.', $basename, $self->get_report_file_extension;
+		( $report_name, $_ );
+		} @$dists;
+	
+	print STDERR Dumper( \%dist_reports ), "\n"; use Data::Dumper;
+	
 	my %Seen = ();
 	my @files = 
 		map  { catfile( $report_dir, $_->[-1] ) }
@@ -219,9 +269,8 @@ sub get_latest_module_reports
 		map  { [ /^(.*)-(.*)\.txt\z/, $_ ] }
 		reverse 
 		sort 
-		grep { /\.txt\z/ } 
+		grep { /\.txt\z/ and exists $dist_reports{$_} } 
 		readdir( $dh );
-
 	}
 	
 sub create_index_files
