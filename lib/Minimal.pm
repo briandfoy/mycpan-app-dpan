@@ -260,8 +260,6 @@ sub get_latest_module_reports
 		( $report_name, $_ );
 		} @$dists;
 	
-	print STDERR Dumper( \%dist_reports ), "\n"; use Data::Dumper;
-	
 	my %Seen = ();
 	my @files = 
 		map  { catfile( $report_dir, $_->[-1] ) }
