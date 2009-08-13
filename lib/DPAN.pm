@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use base qw(MyCPAN::App::BackPAN::Indexer);
-use vars qw($VERSION);
+use vars qw($VERSION $logger);
 
 use Cwd qw(cwd);
 use File::Spec::Functions;
@@ -45,7 +45,7 @@ sub default
 	$_[0]->SUPER::default( $_[1] );
 	}
 
-my $logger = Log::Log4perl->get_logger( 'backpan_indexer' );
+$logger = Log::Log4perl->get_logger( 'backpan_indexer' );
 }
 
 sub activate_steps
@@ -71,7 +71,16 @@ sub activate_end
 	{
 	my( $application ) = @_;
 	
-	$application->get_coordinator->get_reporter->create_index_files;
+	my $reporter = $application->get_coordinator->get_reporter;
+	
+	if( $reporter->can( 'create_index_files' ) )
+		{
+		$reporter->create_index_files;
+		}
+	else
+		{
+		$logger->warn( 'Reporter class is missing create_index_files!' );
+		}
 
 	$application->SUPER::activate_end;
 	}
