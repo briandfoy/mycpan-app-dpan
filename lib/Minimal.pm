@@ -270,7 +270,19 @@ sub get_latest_module_reports
 		grep { /\.txt\z/ and exists $dist_reports{$_} } 
 		readdir( $dh );
 	}
-	
+
+=item create_index_files
+
+Creates the 02packages.details.txt.gz and 03modlist.txt.gz files. If there
+is a problem, it logs a fatal message and returns nothing. If everything works,
+it returns true.
+
+It initially creates the 02packages.details.txt.gz as a temporary file. Before
+it moves it to its final name, it checks the file with CPAN::PackageDetails::check_file
+to ensure it is valid. If it isn't, it stops the process.
+
+=cut
+
 sub create_index_files
 	{
 	my( $self ) = @_;
@@ -287,17 +299,70 @@ sub create_index_files
 	
 	mkpath( $index_dir ) unless -d $index_dir; # XXX
 
-	my $packages_file = catfile( $index_dir, '02packages.details.txt.gz' );
+	my $_02packages_name = '02packages.details.txt.gz'
+	my $packages_file = catfile( $index_dir, $_02packages_name );
 
 	my $package_details = $self->get_note( 'package_details' );
 	
-	$logger->info( "Writing 02packages.details.txt.gz" );	
-	$package_details->write_file( $packages_file );
+	# inside write_file, the module writes to a temp file then renames
+	# it. It doesn't do any other checking. Should some of this be in
+	# there, though?
+	
+	# before we start, ensure that there are some entries. check_files
+	# checks this too, but I want to die earlier with a better message
+	my $count = $package_details->count;
+	
+	unless( $count > 0 )
+		{
+		$logger->fatal( "There are no entries to put into $_02packages_name!" );	
+		return;			
+		}
+		
+	# now, write the file. Even though write_file writes to a temporary
+	# file first, that doesn't protect us from overwriting a good 02packages
+	# with a bad one at this level.
+	{ # scope for $temp_file
+	my $temp_file = 'trial-$$-$packages_file';
+	$logger->info( "Writing $temp_file" );	
+	$package_details->write_file( $temp_file );
 
-	$logger->info( "Writing 03modlist.txt.gz" );	
+	# We tell it to start in $index_dir, but that might have authors/id under it
+	# and that prefix won't show up in 02packages. That's a problem when we want
+	# to find packages and compare their paths. CPAN::PackageDetails might consider
+	# stripping authors/id
+	#
+	# Note: CPANPLUS always assumes authors/id, even for full paths.
+	my $dpan_dir = dirname( $index_dir );
+	my $dpan_authors_id = catfile( $dpan_dir, qw( authors id ) );
+	
+	# if there is an authors/id under the dpan_dir, let's give that path to
+	# check_file
+	$dpan_dir = $dpan_authors_id if -d $dpan_authors_id;
+	$logger->debug( "Using dpan_dir => $dpan_dir" );	
+	
+	$logger->info( "Checking validity of $temp_file" );	
+	my $result = eval { $package_details->check_file( $temp_file, $dpan_dir ) ) } or
+		do {
+			my $at = $@;
+			$logger->fatal( "$temp_file has a problem and I have to abort: $at" );
+			return;
+		};
+
+
+	# if we are this far, 02packages must be okay
+	unless( rename( $temp_file => $packages_file ) )
+		{
+		$logger->fatal( "Could not rename $temp_file => $packages_file" );
+		return;
+		}
+	}
+	
+	# there are no worries about 03modlist because it is just a stub.
+	# there are no real data in it.
+	$logger->info( 'Writing 03modlist.txt.gz' );	
 	$self->create_modlist( $index_dir );
 
-	$logger->info( "Creating CHECKSUMS files" );	
+	$logger->info( 'Creating CHECKSUMS files' );	
 	$self->create_checksums( $self->get_note( 'dirs_needing_checksums' ) );
 	
 	1;
