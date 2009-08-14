@@ -286,7 +286,6 @@ to ensure it is valid. If it isn't, it stops the process.
 sub create_index_files
 	{
 	my( $self ) = @_;
-	
 	my $index_dir = do {
 		my $d = $self->get_config->backpan_dir;
 		
@@ -299,7 +298,7 @@ sub create_index_files
 	
 	mkpath( $index_dir ) unless -d $index_dir; # XXX
 
-	my $_02packages_name = '02packages.details.txt.gz'
+	my $_02packages_name = '02packages.details.txt.gz';
 	my $packages_file = catfile( $index_dir, $_02packages_name );
 
 	my $package_details = $self->get_note( 'package_details' );
@@ -322,7 +321,7 @@ sub create_index_files
 	# file first, that doesn't protect us from overwriting a good 02packages
 	# with a bad one at this level.
 	{ # scope for $temp_file
-	my $temp_file = 'trial-$$-$packages_file';
+	my $temp_file = "$packages_file-$$-trial.gz";
 	$logger->info( "Writing $temp_file" );	
 	$package_details->write_file( $temp_file );
 
@@ -341,13 +340,13 @@ sub create_index_files
 	$logger->debug( "Using dpan_dir => $dpan_dir" );	
 	
 	$logger->info( "Checking validity of $temp_file" );	
-	my $result = eval { $package_details->check_file( $temp_file, $dpan_dir ) ) } or
+	my $result = eval { $package_details->check_file( $temp_file, $dpan_dir ) } or
 		do {
+
 			my $at = $@;
 			$logger->fatal( "$temp_file has a problem and I have to abort: $at" );
 			return;
 		};
-
 
 	# if we are this far, 02packages must be okay
 	unless( rename( $temp_file => $packages_file ) )
