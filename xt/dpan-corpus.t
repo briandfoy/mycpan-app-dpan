@@ -11,8 +11,12 @@ my $dir = 'test-corpus';
 
 my $executable = rel2abs( catfile( qw( blib script dpan ) ) );
 
+# I only want to skip these if there are no distros to process. Other
+# tests set up the test-corpus directory as an empty directory, so I
+# don't want to check merely for the directory
 SKIP: {
-	skip "Test corpus is not present. Skipping tests.", 6 unless -d $dir;
+	skip "Test corpus is not present. Skipping tests.", 6 
+		unless -d catfile( $dir, qw(authors id) );
 	
 	chdir $dir;
 	my $report_dir = 'indexer_reports';
@@ -23,7 +27,7 @@ SKIP: {
 	rmtree $modules_dir;
 	ok( ! -d $modules_dir, "$modules_dir is gone" );
 	
-	system( $executable );
+	system( $^X, '-Mblib', $executable );
 	
 	ok( -d $report_dir, "$report_dir is there now" );
 
