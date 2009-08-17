@@ -32,6 +32,6 @@ WriteMakefile(
 	
 	'EXE_FILES'    => [ qw(script/dpan) ],
 	
-	clean  => { FILES    => q|MyCPAN-*| },
+	clean  => { FILES    => q|MyCPAN-* test-corpus/modules test-corpus/indexer_reports| },
 
 	);
