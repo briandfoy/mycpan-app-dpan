@@ -4,6 +4,7 @@ use warnings;
 
 use Test::More tests => 6;
 
+use Cwd;
 use File::Path qw(rmtree);
 use File::Spec::Functions qw(rel2abs catfile);
 
@@ -18,6 +19,7 @@ SKIP: {
 	skip "Test corpus is not present. Skipping tests.", 6 
 		unless -d catfile( $dir, qw(authors id) );
 	
+	my $start_dir = cwd();
 	chdir $dir;
 	my $report_dir = 'indexer_reports';
 	rmtree $report_dir;
@@ -38,4 +40,6 @@ SKIP: {
 	
 	my $modlist_file = catfile( $modules_dir, '03modlist.data.gz' );
  	ok( -e $modlist_file, "$modlist_file is there" );
+	
+	chdir $start_dir;
 	};
