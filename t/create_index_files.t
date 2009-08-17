@@ -85,7 +85,7 @@ ok( ! $rc, "create_index files does not return true for rename error" );
 BEGIN {
 use Log::Log4perl;
 
-Log::Log4perl->init( \'
+Log::Log4perl->init( \ '
     log4perl.category.Reporter          = FATAL, String
 
     log4perl.appender.String          = Log::Log4perl::Appender::String
