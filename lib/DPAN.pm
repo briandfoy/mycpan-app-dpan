@@ -27,7 +27,8 @@ my %Defaults = (
 	parallel_jobs         => 1,
 	pause_id              => 'DPAN',
 	reporter_class        => 'MyCPAN::App::DPAN::Reporter::Minimal',
-	backpan_dir           => $cwd
+	backpan_dir           => $cwd,
+	fresh_start           => 0,
 	);
 
 sub default_keys
@@ -52,7 +53,7 @@ sub activate_steps
 	{
 	qw(
 	process_options setup_coordinator setup_environment handle_config
-	setup_logging setup_dirs run_components
+	setup_logging fresh_start setup_dirs run_components
 	);
 	}
 
@@ -67,6 +68,21 @@ sub components
 	)
 	}
 
+sub fresh_start
+	{
+	my( $application ) = @_;
+	
+	return unless $application->get_coordinator->get_config->fresh_start;
+	
+	my $indexer_reports_dir = $application->get_coordinator->get_config->report_dir;
+	
+	require File::Path;
+	
+	File::Path::remove_tree( $indexer_reports_dir ); 
+		
+	return 1;
+	}
+	
 sub activate_end
 	{
 	my( $application ) = @_;
@@ -119,8 +135,6 @@ to check the state of the world before the next step.
 When you call C<activate_end>, the program takes the results from the 
 previous step and creates the PAUSE index files in the F<modules> directory.
 This step should be very quick since all of the information is ready-to-go.
-
-
 
 =cut
 

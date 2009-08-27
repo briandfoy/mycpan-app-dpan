@@ -104,6 +104,13 @@ on dispatching classes.
 
 Default: MyCPAN::Indexer::Dispatch::Serial
 
+=item fresh_start
+
+Delete the report directory before indexing. This cleans out all previous
+work, so you need to save that on your own.
+
+Default: 0
+
 =item ignore_packages
 
 You can tell DPAN to ignore some namespaces. The indexer may still record
