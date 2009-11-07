@@ -6,57 +6,131 @@ use Test::More 'no_plan';
 
 use File::Spec::Functions qw(catfile);
 
-my $class      = 'MyCPAN::App::DPAN::Reporter::Minimal';
-my $report_dir = catfile( qw(t indexer_reports success) );
+my $class  = 'MyCPAN::App::DPAN::Reporter::Minimal';
+my $method = 'get_latest_module_reports';
 
+# turn off Log4perl
 BEGIN { $INC{'Log/Log4perl.pm'} = 1; package Log::Log4perl; sub AUTOLOAD { __PACKAGE__ }; }
 
 use_ok( $class );
+can_ok( $class, $method );
 
 {
 no strict 'refs';
 no warnings 'redefine';
-*{"${class}::get_success_report_dir"} = sub { $report_dir };
+*{"${class}::_get_report_names_by_dist_names"} =
+	sub { return $Mock::Reports_names_hashref };
+	
+*{"${class}::_get_all_reports"} =
+	sub { return $Mock::Reports_arrayref };
+
+*{"${class}::get_success_report_dir"} =
+	sub { 'foo' };
 }
 
-my $coordinator_class = 'MyCPAN::Indexer::Coordinator';
-use_ok( $coordinator_class );
-my $coordinator = $coordinator_class->new;
-isa_ok( $coordinator, $coordinator_class );
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Situations
 
-use_ok( 'ConfigReader::Simple' );
-my $config = ConfigReader::Simple->new;
-$config->set( 'backpan_dir', 'foo' );
-$coordinator->set_config( $config );
-
-my $queue_class = 'QueueMock';
-my $queue_mock = bless {}, $queue_class;
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# The reports match the dists, no extras
 {
-no strict 'refs';
-no warnings 'redefine';
-*{"${queue_class}::_get_file_list"} = sub { [ qw(a b c) ] };
-*{"${queue_class}::get_queue"} = sub { qw(a b c) };
+$Mock::Reports_names_hashref = {
+	'Foo-Bar-1.23.txt' => 'Foo-Bar-1.23.tar.gz',
+	'Bar-4.673.txt'    => 'Bar-4.673.tar.gz',
+	'Baz-8.673.txt'    => 'Baz-8.673.tar.gz',
+	};
+$Mock::Reports_arrayref      = [qw(
+	Foo-Bar-1.23.txt
+	Bar-4.673.txt
+	Baz-8.673.txt
+	)];
+my $expected = [ sort qw(
+	foo/Bar-4.673.txt
+	foo/Baz-8.673.txt	
+	foo/Foo-Bar-1.23.txt
+	)];
+	
+my $actual = [ sort $class->$method() ];
+
+is_deeply( $actual, $expected, 'No extras' );
 }
-$coordinator->set_queue( $queue_mock );
 
-my $mock = bless { _coordinator => $coordinator }, $class;
-can_ok( $mock, 'set_coordinator' );
-ok( $mock->set_coordinator( $coordinator ) );
-ok( $coordinator->set_reporter( $mock ) );
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Some reports are old
+{
+$Mock::Reports_names_hashref = {
+	'Foo-Bar-1.23.txt' => 'Foo-Bar-1.23.tar.gz',
+	'Bar-4.673.txt'    => 'Bar-4.673.tar.gz',
+	'Baz-8.673.txt'    => 'Baz-8.673.tar.gz',
+	};
+$Mock::Reports_arrayref      = [qw(
+	Foo-Bar-1.22.txt
+	Foo-Bar-1.23.txt
+	Bar-4.672.txt
+	Bar-4.673.txt
+	Baz-8.671.txt
+	Baz-8.672.txt
+	Baz-8.673.txt
+	)];
 
-can_ok( $mock, 'get_success_report_dir' );
-can_ok( $mock, 'get_latest_module_reports' );
+my $expected = [ sort qw(
+	foo/Bar-4.673.txt
+	foo/Baz-8.673.txt	
+	foo/Foo-Bar-1.23.txt
+	)];
+	
+my $actual = [ sort $class->$method() ];
 
-ok( -d $mock->get_success_report_dir, 'Report directory exists' );
+is_deeply( $actual, $expected, 'Some old reports' );
+}
 
-TODO: {
-local $TODO = "Need to add a coordinator object";
-my @files = $mock->get_latest_module_reports;
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Some reports are newer without matching dists
+{
+$Mock::Reports_names_hashref = {
+	'Fob-Bar-1.23.txt' => 'Fob-Bar-1.23.tar.gz',
+	'Bar-4.673.txt'    => 'Bar-4.673.tar.gz',
+	'Baz-8.673.txt'    => 'Baz-8.673.tar.gz',
+	};
+$Mock::Reports_arrayref      = [qw(
+	Fob-Bar-1.21.txt
+	Fob-Bar-1.23.txt
+	Fob-Bar-1.24.txt
+	Bar-4.673.txt
+	Baz-8.673.txt
+	Bar-4.674.txt
+	Quux-999.txt
+	)];
 
-is( scalar @files, 1, "There is only one report" );
+my $expected = [ sort qw(
+	foo/Bar-4.673.txt
+	foo/Baz-8.673.txt	
+	foo/Fob-Bar-1.23.txt
+	)];
+	
+my $actual = [ sort $class->$method() ];
 
-is( $files[0], 
-	catfile( $report_dir, 'Foo-Bar-0.02.txt' ), 
-	'The report is the lastest one' 
-	);
+is_deeply( $actual, $expected, 'Some newer reports' );
+}
+
+# Some reports don't have matching dists
+{
+$Mock::Reports_names_hashref = {
+	'Baz-8.673.txt'    => 'Baz-8.673.tar.gz',
+	};
+$Mock::Reports_arrayref      = [qw(
+	Foo-Bar-1.21.txt
+	Foo-Bar-1.23.txt
+	Foo-Bar-1.24.txt
+	Bar-4.673.txt
+	Baz-8.673.txt
+	)];
+
+my $expected = [ sort qw(
+	foo/Baz-8.673.txt	
+	)];
+
+my $actual = [ sort $class->$method() ];
+
+is_deeply( $actual, $expected, 'Some extra reports' );
 }

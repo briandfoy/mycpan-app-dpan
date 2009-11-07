@@ -4,7 +4,7 @@ use warnings;
 
 use base qw(MyCPAN::Indexer::Reporter::Base);
 use vars qw($VERSION $logger);
-$VERSION = '1.26';
+$VERSION = '1.27';
 
 use Carp;
 use File::Basename;
@@ -232,22 +232,56 @@ sub get_latest_module_reports
 	{
 	my( $self, $directory ) = @_;
 	
+	my $report_names_by_dist_names = $self->_get_report_names_by_dist_names;
+	
+	my $all_reports = $self->_get_all_reports;
+
+	my $report_dir = $self->get_success_report_dir;
+
+	my %Seen = ();
+	my @files = 
+		map  { catfile( $report_dir, $_->[-1] ) }
+		grep { ! $Seen{$_->[0]}++ } 
+		map  { [ /^(.*)-(.*)\.txt\z/, $_ ] }
+		reverse 
+		sort 
+		grep { /\.txt\z/ and exists $report_names_by_dist_names->{$_} } 
+		@$all_reports;
+	}
+
+sub _get_all_reports
+	{
+	my( $self ) = @_;
+	
 	my $report_dir = $self->get_success_report_dir;
 	$logger->debug( "Report dir is $report_dir" );
 
 	opendir my($dh), $report_dir or
-		$logger->fatal( "Could not open directory [$report_dir]: $!");
+		$logger->fatal( "Could not open directory [$report_dir]: $!");	
+	
+	my @reports = readdir( $dh );
+	}
 
+# this generates a list of report names based on what should
+# be there according to the dist that we just indexed. There
+# might be many reports for different versions or modules no
+# longer in the DPAN, so we don't want those
+sub _get_report_names_by_dist_names
+	{
+	my( $self ) = @_;
+	
 	# We have to recreate the queue because we might have moved
 	# things around with organize_dists
-	
 	my $queuer = $self->get_coordinator->get_component( 'queue' );
 
+	# these are the directories to index
 	my @dirs = do {
 		my $item = $self->get_config->backpan_dir || '';
 		split /\s+/, $item;
 		};
+	$logger->debug( "Queue directories are [@dirs]" );
 	
+	# This is the list of distributions in the indexed directories
 	my $dists = $queuer->_get_file_list( @dirs );
 
 	# The code in this map is duplicated from MyCPAN::Indexer::Reporter::Base
@@ -260,15 +294,7 @@ sub get_latest_module_reports
 		( $report_name, $_ );
 		} @$dists;
 	
-	my %Seen = ();
-	my @files = 
-		map  { catfile( $report_dir, $_->[-1] ) }
-		grep { ! $Seen{$_->[0]}++ } 
-		map  { [ /^(.*)-(.*)\.txt\z/, $_ ] }
-		reverse 
-		sort 
-		grep { /\.txt\z/ and exists $dist_reports{$_} } 
-		readdir( $dh );
+	return \%dist_reports;
 	}
 
 =item create_index_files
