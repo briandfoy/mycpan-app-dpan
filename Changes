@@ -1,5 +1,12 @@
 # Changes for DarkPAN::Creator
 
+1.27 - Sun Nov  8 02:33:58 2009
+	* Now you can set the Log4perl config file with the
+	DPAN_LOG4PERL_FILE.
+	* Refactored some bits in the Minimal reporter to 
+	make it easier to override the bits that decide
+	which reports to index.
+
 1.22 - Thu May 21 17:44:59 2009
 	* Don't index packages (such as bytes, DB, MM) that are special
 	* Don't try to index tests. We don't need them to make DPAN
