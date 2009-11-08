@@ -194,12 +194,12 @@ Try this before we get this far
 		my %Seen;
 		my @filtered_packages =
 			grep { ! $Seen{$_->[0]}++ }
+			map { my $s = $_; $s->[1] = 'undef' unless defined $s->[1]; $s }
 			sort {
 				$a->[0] cmp $b->[0]
 					||
 				$b->[1] cmp $a->[1]  # yes, versions are strings
 				}
-			map { my $s = $_; $s->[1] = 'undef' unless defined $s->[1]; $s }
 			@packages;
 
 		foreach my $tuple ( @filtered_packages )
