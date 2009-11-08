@@ -52,8 +52,14 @@ $logger = Log::Log4perl->get_logger( 'backpan_indexer' );
 sub activate_steps
 	{
 	qw(
-	process_options setup_coordinator setup_environment handle_config
-	setup_logging fresh_start setup_dirs run_components
+	process_options 
+	setup_coordinator 
+	setup_environment 
+	handle_config
+	setup_logging 
+	fresh_start 
+	setup_dirs 
+	run_components
 	);
 	}
 

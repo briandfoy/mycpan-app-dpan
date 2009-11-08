@@ -231,7 +231,7 @@ backpan_dir (some things might have moved around), gets the reports for
 sub get_latest_module_reports
 	{
 	my( $self, $directory ) = @_;
-	
+	$logger->info( "In get_latest_module_reports" );
 	my $report_names_by_dist_names = $self->_get_report_names_by_dist_names;
 	
 	my $all_reports = $self->_get_all_reports;
@@ -239,13 +239,24 @@ sub get_latest_module_reports
 	my $report_dir = $self->get_success_report_dir;
 
 	my %Seen = ();
+			no warnings 'uninitialized';
 	my @files = 
 		map  { catfile( $report_dir, $_->[-1] ) }
 		grep { ! $Seen{$_->[0]}++ } 
 		map  { [ /^(.*)-(.*)\.txt\z/, $_ ] }
 		reverse 
-		sort 
-		grep { /\.txt\z/ and exists $report_names_by_dist_names->{$_} } 
+		sort
+		grep {
+			$logger->debug( "Passing on $_: $report_names_by_dist_names->{$_}" );
+			1;
+			}
+		grep { 
+			$logger->debug( "Considering $_: $report_names_by_dist_names->{$_}" );
+			$logger->debug( "[$report_names_by_dist_names->{$_}] exists: " . (-e $report_names_by_dist_names->{$_}) );
+			/\.txt\z/ 
+				and 
+			exists $report_names_by_dist_names->{$_}
+			} 
 		@$all_reports;
 	}
 
@@ -260,6 +271,8 @@ sub _get_all_reports
 		$logger->fatal( "Could not open directory [$report_dir]: $!");	
 	
 	my @reports = readdir( $dh );
+	
+	\@reports;
 	}
 
 # this generates a list of report names based on what should

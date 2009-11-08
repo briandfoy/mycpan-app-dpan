@@ -18,6 +18,9 @@ elsif( grep /^-?-v(ersion)?$/, @ARGV )
 	
 	exit 0;	
 	}
+
+$ENV{MYCPAN_LOG4PERL_FILE} = $ENV{DPAN_LOG4PERL_FILE} 
+	if defined $ENV{DPAN_LOG4PERL_FILE};
 	
 my $application = MyCPAN::App::DPAN->activate( @ARGV );
 
@@ -65,6 +68,10 @@ and F<03modlist.data.gz>.
 =item -f config_file
 
 =item -l log4perl_config_file
+
+The path to the log4perl configuration file. You can also set this
+with the <DPAN_LOG4PERL_FILE> environment variable or the C<log4perl_file>
+configuration directive.
 
 =back
 
@@ -141,6 +148,11 @@ on interface classes.
 
 Default: MyCPAN::Indexer::Interface::Text
 
+=item log4perl_file
+
+The path to the log4perl configuration file. You can also set this with
+the <-l> switch or the C<DPAN_LOG4PERL_FILE> environment variable.
+
 =item organize_dists
 
 Take all of the distributions C<dpan> finds and put the into a PAUSE-like
@@ -165,7 +177,7 @@ Default: DPAN
 =item queue_class MyCPAN::Indexer::Queue
 
 The Perl class to use as the queue class. It has to at least
-provide a run method. See MyCPAN::Indexer::Tutorial for details
+provide a run method. See C<MyCPAN::Indexer::Tutorial> for details
 on queue classes.
 
 Default: MyCPAN::Indexer::Queue
@@ -173,7 +185,7 @@ Default: MyCPAN::Indexer::Queue
 =item reporter_class  
 
 The Perl class to use as the reporter class. It has to at least
-provide a run method. See MyCPAN::Indexer::Tutorial for details
+provide a run method. See C<MyCPAN::Indexer::Tutorial> for details
 on reporter classes.
 
 Default: MyCPAN::App::DPAN::Reporter::Minimal
@@ -207,10 +219,40 @@ Default: a temp directory in the current working directory
 =item worker_class    
 
 The Perl class to use as the worker class. It has to at least
-provide a run method. See MyCPAN::Indexer::Tutorial for details
+provide a run method. See C<MyCPAN::Indexer::Tutorial> for details
 on worker classes.
 
 Default: MyCPAN::Indexer::Worker
+
+=back
+
+=head1 LOG4PERL
+
+You can set the Log4perl levels on each of the components
+separately:
+
+	log4perl.rootLogger               =    FATAL, Null
+	
+	log4perl.logger.backpan_indexer   =    DEBUG, File
+	
+	log4perl.logger.Indexer           =    DEBUG, File
+	log4perl.logger.Worker            =    DEBUG, File
+	
+	log4perl.logger.Interface         =    DEBUG, File
+	
+	log4perl.logger.Dispatcher        =    DEBUG, File
+	log4perl.logger.Queue             =    DEBUG, File
+	
+	log4perl.logger.Reporter          =    DEBUG, File
+
+=head1 ENVIRONMENT VARIABLES
+
+=over 4
+
+=item DPAN_LOG4PERL_FILE
+
+The path to the log4perl configuration file. You can also set this with
+the <-l> switch of the C<log4perl_file> configuration directive.
 
 =back
 
