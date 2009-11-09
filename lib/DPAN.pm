@@ -28,7 +28,7 @@ my %Defaults = (
 	pause_id              => 'DPAN',
 	reporter_class        => 'MyCPAN::App::DPAN::Reporter::Minimal',
 	backpan_dir           => $cwd,
-	fresh_start           => 0,
+	fresh_start           => defined $ENV{DPAN_FRESH_START} ? $ENV{DPAN_FRESH_START} : 0,
 	);
 
 sub default_keys

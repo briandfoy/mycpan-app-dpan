@@ -106,7 +106,7 @@ Default: 0
 =item dispatcher_class 
 
 The Perl class to use as the dispatching class. It has to at least
-provide a run method. See MyCPAN::Indexer::Tutorial for details
+provide a run method. See C<MyCPAN::Indexer::Tutorial> for details
 on dispatching classes.
 
 Default: MyCPAN::Indexer::Dispatch::Serial
@@ -114,7 +114,8 @@ Default: MyCPAN::Indexer::Dispatch::Serial
 =item fresh_start
 
 Delete the report directory before indexing. This cleans out all previous
-work, so you need to save that on your own.
+work, so you need to save that on your own. You can also set this with
+the C<DPAN_FRESH_START> environment variable.
 
 Default: 0
 
@@ -129,7 +130,7 @@ Default: main MY MM DB bytes DynaLoader
 =item indexer_class 
 
 The Perl class to use as the indexing class. It has to at least
-provide a run method. See MyCPAN::Indexer::Tutorial for details
+provide a run method. See C<MyCPAN::Indexer::Tutorial> for details
 on indexing classes.
 
 Default: MyCPAN::App::DPAN::Indexer
@@ -143,7 +144,7 @@ Default: Joe Example <joe@example.com>
 =item interface_class 
 
 The Perl class to use as the interface class. It has to at least
-provide a run method. See MyCPAN::Indexer::Tutorial for details
+provide a run method. See C<MyCPAN::Indexer::Tutorial> for details
 on interface classes.
 
 Default: MyCPAN::Indexer::Interface::Text
@@ -248,6 +249,12 @@ separately:
 =head1 ENVIRONMENT VARIABLES
 
 =over 4
+
+=item DPAN_FRESH_START
+
+Delete the report directory before indexing. This cleans out all previous
+work, so you need to save that on your own. You can also set this with
+the C<fresh_start> configuration directive.
 
 =item DPAN_LOG4PERL_FILE
 
