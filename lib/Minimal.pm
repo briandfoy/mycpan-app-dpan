@@ -239,7 +239,8 @@ sub get_latest_module_reports
 	my $report_dir = $self->get_success_report_dir;
 
 	my %Seen = ();
-			no warnings 'uninitialized';
+	
+	no warnings 'uninitialized';
 	my @files = 
 		map  { catfile( $report_dir, $_->[-1] ) }
 		grep { ! $Seen{$_->[0]}++ } 

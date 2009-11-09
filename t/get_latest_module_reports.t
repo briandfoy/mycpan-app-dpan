@@ -44,10 +44,10 @@ $Mock::Reports_arrayref      = [qw(
 	Bar-4.673.txt
 	Baz-8.673.txt
 	)];
-my $expected = [ sort qw(
-	foo/Bar-4.673.txt
-	foo/Baz-8.673.txt	
-	foo/Foo-Bar-1.23.txt
+my $expected = [ sort map { catfile( 'foo', $_ ) } qw(
+	Bar-4.673.txt
+	Baz-8.673.txt	
+	Foo-Bar-1.23.txt
 	)];
 	
 my $actual = [ sort $class->$method() ];
@@ -73,10 +73,10 @@ $Mock::Reports_arrayref      = [qw(
 	Baz-8.673.txt
 	)];
 
-my $expected = [ sort qw(
-	foo/Bar-4.673.txt
-	foo/Baz-8.673.txt	
-	foo/Foo-Bar-1.23.txt
+my $expected = [ sort map { catfile( $class->get_success_report_dir, $_ ) } qw(
+	Bar-4.673.txt
+	Baz-8.673.txt	
+	Foo-Bar-1.23.txt
 	)];
 	
 my $actual = [ sort $class->$method() ];
@@ -102,10 +102,10 @@ $Mock::Reports_arrayref      = [qw(
 	Quux-999.txt
 	)];
 
-my $expected = [ sort qw(
-	foo/Bar-4.673.txt
-	foo/Baz-8.673.txt	
-	foo/Fob-Bar-1.23.txt
+my $expected = [ sort map { catfile( $class->get_success_report_dir, $_ ) } qw(
+	Bar-4.673.txt
+	Baz-8.673.txt	
+	Fob-Bar-1.23.txt
 	)];
 	
 my $actual = [ sort $class->$method() ];
@@ -126,8 +126,8 @@ $Mock::Reports_arrayref      = [qw(
 	Baz-8.673.txt
 	)];
 
-my $expected = [ sort qw(
-	foo/Baz-8.673.txt	
+my $expected = [ sort map { catfile( $class->get_success_report_dir, $_ ) } qw(
+	Baz-8.673.txt	
 	)];
 
 my $actual = [ sort $class->$method() ];
