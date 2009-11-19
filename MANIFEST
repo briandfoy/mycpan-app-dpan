@@ -3,6 +3,7 @@ lib/AsYAML.pm
 lib/DPAN.pm
 lib/Indexer.pm
 lib/Minimal.pm
+lib/SkipQueue.pm
 LICENSE
 Makefile.PL
 MANIFEST

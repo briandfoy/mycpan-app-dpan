@@ -7,6 +7,7 @@ use vars qw($VERSION $logger);
 $VERSION = '1.27';
 
 use Carp;
+use Cwd;
 use File::Basename;
 use File::Path;
 use File::Spec::Functions qw(catfile rel2abs);
@@ -123,8 +124,10 @@ sub final_words
 
 	my %dirs_needing_checksums;
 
-	require CPAN::PackageDetails;
-	my $package_details = CPAN::PackageDetails->new;
+	use CPAN::PackageDetails 0.22;
+	my $package_details = CPAN::PackageDetails->new(
+		allow_packages_only_once => 0
+		);
 
 	$logger->info( "Creating index files" );
 
@@ -230,15 +233,15 @@ backpan_dir (some things might have moved around), gets the reports for
 
 sub get_latest_module_reports
 	{
-	my( $self, $directory ) = @_;
+	my( $self ) = @_;
 	$logger->info( "In get_latest_module_reports" );
 	my $report_names_by_dist_names = $self->_get_report_names_by_dist_names;
 	
 	my $all_reports = $self->_get_all_reports;
-
-	my $report_dir = $self->get_success_report_dir;
+		
 
 	my %Seen = ();
+	my $report_dir = $self->get_success_report_dir;
 	
 	no warnings 'uninitialized';
 	my @files = 
@@ -247,18 +250,14 @@ sub get_latest_module_reports
 		map  { [ /^(.*)-(.*)\.txt\z/, $_ ] }
 		reverse 
 		sort
-		grep {
-			$logger->debug( "Passing on $_: $report_names_by_dist_names->{$_}" );
-			1;
-			}
-		grep { 
-			$logger->debug( "Considering $_: $report_names_by_dist_names->{$_}" );
-			$logger->debug( "[$report_names_by_dist_names->{$_}] exists: " . (-e $report_names_by_dist_names->{$_}) );
-			/\.txt\z/ 
-				and 
-			exists $report_names_by_dist_names->{$_}
-			} 
-		@$all_reports;
+		keys %$report_names_by_dist_names;
+		
+	my $extra_reports = $self->_get_extra_reports || [];
+	
+	push @files, @$extra_reports;
+	$logger->debug( "Adding extra reports [@$extra_reports]" );
+
+	@files;
 	}
 
 sub _get_all_reports
@@ -272,7 +271,7 @@ sub _get_all_reports
 		$logger->fatal( "Could not open directory [$report_dir]: $!");	
 	
 	my @reports = readdir( $dh );
-	
+
 	\@reports;
 	}
 
@@ -311,6 +310,31 @@ sub _get_report_names_by_dist_names
 	return \%dist_reports;
 	}
 
+sub _get_extra_reports
+	{
+	my( $self ) = @_;
+
+	return [] unless $self->get_config->exists( 'extra_reports_dir' );
+	
+	my $dir = $self->get_config->extra_reports_dir;
+	$logger->debug( "Extra reports directory is [$dir]" );
+
+	my $cwd = cwd();
+	$logger->debug( "Extra reports directory does not exist! Cwd is [$cwd]" )
+		unless -d $dir;
+	
+	my $glob = catfile(
+		$dir,
+		"*." . $self->get_report_file_extension
+		);
+	$logger->debug( "glob pattern is [$glob]" );
+	
+	my @reports = glob( $glob );
+	$logger->debug( "Got extra reports [@reports]" );
+	
+	return \@reports;
+	}
+	
 =item create_index_files
 
 Creates the 02packages.details.txt.gz and 03modlist.txt.gz files. If there
@@ -361,7 +385,7 @@ sub create_index_files
 	# file first, that doesn't protect us from overwriting a good 02packages
 	# with a bad one at this level.
 	{ # scope for $temp_file
-	my $temp_file = "$packages_file-$$-trial.gz";
+	my $temp_file = "$packages_file-$$-trial";
 	$logger->info( "Writing $temp_file" );	
 	$package_details->write_file( $temp_file );
 
@@ -382,9 +406,27 @@ sub create_index_files
 	$logger->info( "Checking validity of $temp_file" );	
 	my $result = eval { $package_details->check_file( $temp_file, $dpan_dir ) } or
 		do {
-
 			my $at = $@;
-			$logger->fatal( "$temp_file has a problem and I have to abort: $at" );
+			my $error = do {
+				if( not ref $at ) 
+					{
+					$at;
+					}
+				elsif( exists $at->{missing_in_file} )
+					{
+					$at->{message} . "\n\t" .
+						join( "\n\t", @{ $at->{missing_in_file} } )
+					}
+				elsif( exists $at->{missing_in_repo} )
+					{
+					$at->{message} . "\n\t" .
+						join( "\n\t", @{ $at->{missing_in_repo} } )
+					}
+				else { 'Unknown error!' }
+				};
+			
+			unlink $temp_file unless $logger->is_debug;
+			$logger->fatal( "$temp_file has a problem and I have to abort:\nDeleting file (unless you're debugging)\n$error" );
 			return;
 		};
 
