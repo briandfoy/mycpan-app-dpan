@@ -13,9 +13,9 @@ WriteMakefile(
 	
 	'PREREQ_PM'    => { 
 		'CPAN::Checksums'      => '0',
-		'CPAN::PackageDetails' => '0.20',
+		'CPAN::PackageDetails' => '0.22',
 		'Log::Log4perl'        => '0',
-		'MyCPAN::Indexer'      => '1.26',
+		'MyCPAN::Indexer'      => '1.27',
 		'Test::Output'         => '0.13',
 		'version'              => '0',
 		},
@@ -25,6 +25,7 @@ WriteMakefile(
 		'lib/DPAN.pm'      => '$(INST_LIBDIR)/DPAN.pm',
 		'lib/Minimal.pm'   => '$(INST_LIBDIR)/DPAN/Reporter/Minimal.pm',
 		'lib/AsYAML.pm'    => '$(INST_LIBDIR)/DPAN/Reporter/AsYAML.pm',
+		'lib/SkipQueue.pm' => '$(INST_LIBDIR)/DPAN/SkipQueue.pm',
 		},
 
 
