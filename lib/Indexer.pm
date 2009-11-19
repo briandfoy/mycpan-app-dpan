@@ -90,6 +90,31 @@ C<MyCPAN::Indexer::find_modules>.
 
 sub find_module_techniques
 	{
+	my( $self ) = @_;
+
+=pod
+
+Save this feature for another time
+
+	my $config = $self->get_coordinator->get_config;
+	
+	if( my @techniques = $config->get( 'find_module_techniques' ) )
+		{
+		$logger->debug( "Using techniques [@techniques] to find modules" );
+		
+		@techniques = map {
+			my $can =  $self->can( $_ );
+			$logger->warn( "The technique [$_] is unknown" )
+				unless $can;
+			$can ? [ $_, 'Technique $_ specified by config' ] : ();
+			} @techniques;
+			
+		return \@techniques;
+		}
+
+=cut
+
+	
 	(
 	[ 'look_in_lib',               "Guessed from looking in lib/"      ],
 	[ 'look_in_cwd',               "Guessed from looking in cwd"       ],
