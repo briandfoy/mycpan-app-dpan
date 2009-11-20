@@ -101,6 +101,7 @@ sub new { bless {}, $_[0] };
 
 sub get_config  { $_[0] }
 sub backpan_dir { catfile( qw(test-corpus authors id) ) };
+sub i_ignore_errors_at_my_peril { 0 }
 
 sub get_note {
 	Mock::CPAN::PackageDetails->new;

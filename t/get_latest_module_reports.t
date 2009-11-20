@@ -24,6 +24,10 @@ no warnings 'redefine';
 *{"${class}::_get_all_reports"} =
 	sub { return $Mock::Reports_arrayref };
 
+# XXX: this needs better testing
+*{"${class}::_get_extra_reports"} =
+	sub { return () };
+
 *{"${class}::get_success_report_dir"} =
 	sub { 'foo' };
 }
@@ -34,6 +38,7 @@ no warnings 'redefine';
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # The reports match the dists, no extras
 {
+local $SIG{__DIE__} = sub { &confess }; use Carp qw(confess);
 $Mock::Reports_names_hashref = {
 	'Foo-Bar-1.23.txt' => 'Foo-Bar-1.23.tar.gz',
 	'Bar-4.673.txt'    => 'Bar-4.673.tar.gz',

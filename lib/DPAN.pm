@@ -23,6 +23,7 @@ my %Defaults = (
 	ignore_packages       => 'main MY MM DB bytes DynaLoader',
 	indexer_class         => 'MyCPAN::App::DPAN::Indexer',
 	dispatcher_class      => 'MyCPAN::Indexer::Dispatcher::Serial',
+	queue_class           => 'MyCPAN::App::DPAN::SkipQueue',
 	organize_dists        => 0,
 	parallel_jobs         => 1,
 	pause_id              => 'DPAN',
@@ -31,6 +32,8 @@ my %Defaults = (
 	fresh_start           => defined $ENV{DPAN_FRESH_START} ? $ENV{DPAN_FRESH_START} : 0,
 	skip_perl             => 0,
 	extra_reports_dir     => undef,
+	i_ignore_errors_at_my_peril => 0,
+	ignore_missing_dists  => 0,
 	);
 
 sub default_keys

@@ -58,6 +58,13 @@ sub get_reporter
 
 	my( $self ) = @_;
 
+	my $base_dir = $self->get_config->backpan_dir;
+	
+	if( $self->get_config->organize_dists )
+		{
+		$base_dir = catfile( $base_dir, qw(authors id) );
+		}
+	
 	my $reporter = sub {
 		my( $info ) = @_;
 
@@ -69,8 +76,11 @@ sub get_reporter
 
 		my $out_path = $self->get_report_path( $info );
 
-		open my($fh), ">", $out_path or $logger->fatal( "Could not open $out_path: $!" );
+		open my($fh), ">", $out_path or 
+			$logger->fatal( "Could not open $out_path to record report: $!" );
+
 		print $fh "# Primary package [TAB] version [TAB] dist file [newline]\n";
+		
 		MODULE: foreach my $module ( @{ $info->{dist_info}{module_info} || [] } )
 			{
 			# skip if we are ignoring those packages?
@@ -83,13 +93,18 @@ sub get_reporter
 				next MODULE;
 				}
 
+			# this should be an absolute path
+			my $dist_file = $info->{dist_info}{dist_file};
+
+			$dist_file =~ s/^.*authors.id.// if $self->get_config->organize_dists;
+			
 			$logger->warn( "No dist file for $module->{name}" )
-				unless defined $info->{dist_info}{dist_file};
+				unless defined $dist_file;
 
 			print $fh join "\t",
 				$module->{primary_package},
 				$version,
-				$info->{dist_info}{dist_file};
+				$dist_file;
 
 			print $fh "\n";
 			}
@@ -158,20 +173,17 @@ sub final_words
 				next PACKAGE;
 				}
 
-=for comment
-
-Try this before we get this far
-
-			unless( exists $dist_file )
+			if( $self->get_config->organize_dists )
 				{
-				# What directory am I in?
-				$logger->warn( "Dist file [$dist_file] not found in DPAN" );
-				next PACKAGE;
+				my $backpan_dir = ($self->get_config->backpan_dir)[0];
+				$dist_file = catfile( 
+					$backpan_dir, 
+					qw(authors id),
+					$dist_file
+					);
 				}
-=end
-
-=cut
-
+			
+			$logger->debug( "dist_file is now [$dist_file]" );
 			next PACKAGE unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
 			my $dist_dir = dirname( $dist_file );
 			$dirs_needing_checksums{ $dist_dir }++;
@@ -195,6 +207,7 @@ Try this before we get this far
 		# Some distros declare the same package in multiple files. We
 		# only want the one with the defined or highest version
 		my %Seen;
+		no warnings;
 		my @filtered_packages =
 			grep { ! $Seen{$_->[0]}++ }
 			map { my $s = $_; $s->[1] = 'undef' unless defined $s->[1]; $s }
@@ -317,6 +330,7 @@ sub _get_extra_reports
 	return [] unless $self->get_config->exists( 'extra_reports_dir' );
 	
 	my $dir = $self->get_config->extra_reports_dir;
+	return [] unless defined $dir;
 	$logger->debug( "Extra reports directory is [$dir]" );
 
 	my $cwd = cwd();
@@ -402,33 +416,33 @@ sub create_index_files
 	# check_file
 	$dpan_dir = $dpan_authors_id if -d $dpan_authors_id;
 	$logger->debug( "Using dpan_dir => $dpan_dir" );	
+
+
+	# Check the trial file for errors	
+	unless( $self->get_config->i_ignore_errors_at_my_peril )
+		{
+		$logger->info( "Checking validity of $temp_file" );
+		my $at;
+		my $result = eval { $package_details->check_file( $temp_file, $dpan_dir ) } 
+			or $at = $@;
 	
-	$logger->info( "Checking validity of $temp_file" );	
-	my $result = eval { $package_details->check_file( $temp_file, $dpan_dir ) } or
-		do {
-			my $at = $@;
-			my $error = do {
-				if( not ref $at ) 
-					{
-					$at;
-					}
-				elsif( exists $at->{missing_in_file} )
-					{
-					$at->{message} . "\n\t" .
-						join( "\n\t", @{ $at->{missing_in_file} } )
-					}
-				elsif( exists $at->{missing_in_repo} )
-					{
-					$at->{message} . "\n\t" .
-						join( "\n\t", @{ $at->{missing_in_repo} } )
-					}
-				else { 'Unknown error!' }
-				};
+		if( defined $at )
+			{
+			# _interpret_check_file_error can nerf an error based
+			# on configuration. Maybe you don't care about a 
+			# particular error.
+			my $error = $self->_interpret_check_file_error( $at );
 			
-			unlink $temp_file unless $logger->is_debug;
-			$logger->fatal( "$temp_file has a problem and I have to abort:\nDeleting file (unless you're debugging)\n$error" );
-			return;
-		};
+			if( defined $error )
+				{
+				unlink $temp_file unless $logger->is_debug;
+				$logger->logdie( "$temp_file has a problem and I have to abort:\n".
+					"Deleting file (unless you're debugging)\n" .
+					"$error" 
+					) if defined $error;
+				}
+			}
+		}
 
 	# if we are this far, 02packages must be okay
 	unless( rename( $temp_file => $packages_file ) )
@@ -449,7 +463,44 @@ sub create_index_files
 	1;
 	}
 	
-
+sub _interpret_check_file_error
+	{
+	my( $self, $at ) = @_;
+	
+	my $error_message = do {
+		if( not ref $at ) 
+			{
+			$at;
+			}
+		# eventually this will filter the missing files and still
+		# complain for the left over ones
+		elsif( exists $at->{missing_in_file} )
+			{					
+			if( $self->get_config->ignore_missing_dists ) {
+				undef;
+				}
+			else {
+				"Some distributions in the repository do not show up in the file\n\t" .
+					join( "\n\t", @{ $at->{missing_in_file} } )
+				}
+			}
+		# eventually this will filter the missing dists and still
+		# complain for the left over ones
+		elsif( exists $at->{missing_in_repo} )
+			{
+			if( $self->get_config->ignore_extra_dists ) {
+				undef;
+				}
+			else {
+				"The file has distributions that do not appear in the repository\n\t" .
+					join( "\n\t", @{ $at->{missing_in_repo} } )
+				}
+			}
+		else { 'Unknown error!' }
+		};
+			
+	}
+	
 =item skip_package( PACKAGE )
 
 Returns true if the indexer should ignore PACKAGE.
