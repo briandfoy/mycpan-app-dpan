@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 
-use MyCPAN::App::DPAN 1.25;
+use MyCPAN::App::DPAN 1.28;
 
-our $VERSION = '1.28';
+our $VERSION = '1.28_01';
 
 if( grep /^-?-h(elp)?$/, @ARGV ) {	
 	require Pod::Usage;
@@ -193,6 +193,15 @@ provide a run method. See C<MyCPAN::Indexer::Tutorial> for details
 on queue classes.
 
 Default: MyCPAN::Indexer::SkipQueue
+
+=item relative_paths_in_report
+
+If true, supporting reporter classes change the path to the distribution
+file to be relative to I<authors/id>.
+
+Supported by C<MyCPAN::App::DPAN::Reporter::Minimal>.
+
+Default: true
 
 =item reporter_class  
 

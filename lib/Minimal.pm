@@ -4,7 +4,7 @@ use warnings;
 
 use base qw(MyCPAN::Indexer::Reporter::Base);
 use vars qw($VERSION $logger);
-$VERSION = '1.28';
+$VERSION = '1.28_01';
 
 use Carp;
 use Cwd;
@@ -48,18 +48,21 @@ distribution and dumps it as a YAML file.
 See L<MyCPAN::Indexer::Tutorial> for details about what
 C<get_reporter> expects and should do.
 
+If C<relative_paths_in_report> is true, the reports removes the base
+path up to I<author/id>.
+
 =cut
 
 sub get_report_file_extension { 'txt' }
 
 sub get_reporter
 	{
-	#TRACE( sub { get_caller_info } );
-
 	my( $self ) = @_;
 
-	my $base_dir = $self->get_config->backpan_dir;
 	
+	# why is this here?
+	my $base_dir = $self->get_config->backpan_dir;
+
 	if( $self->get_config->organize_dists )
 		{
 		$base_dir = catfile( $base_dir, qw(authors id) );
@@ -96,7 +99,8 @@ sub get_reporter
 			# this should be an absolute path
 			my $dist_file = $info->{dist_info}{dist_file};
 
-			$dist_file =~ s/^.*authors.id.// if $self->get_config->organize_dists;
+			$dist_file =~ s/^.*authors.id.// if 
+				$self->get_config->relative_paths_in_report;
 			
 			$logger->warn( "No dist file for $module->{name}" )
 				unless defined $dist_file;
@@ -180,7 +184,7 @@ sub final_words
 					$backpan_dir, 
 					qw(authors id),
 					$dist_file
-					);
+					) if $self->get_config->relative_paths_in_reports;
 				}
 			
 			$logger->debug( "dist_file is now [$dist_file]" );

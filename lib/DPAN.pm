@@ -9,7 +9,7 @@ use Cwd qw(cwd);
 use File::Spec::Functions;
 use Log::Log4perl;
 
-$VERSION = '1.28';
+$VERSION = '1.28_01';
 
 BEGIN {
 
@@ -20,20 +20,21 @@ my $cwd = cwd();
 my $report_dir = catfile( $cwd, 'indexer_reports' );
 
 my %Defaults = (
-	ignore_packages       => 'main MY MM DB bytes DynaLoader',
-	indexer_class         => 'MyCPAN::App::DPAN::Indexer',
-	dispatcher_class      => 'MyCPAN::Indexer::Dispatcher::Serial',
-	queue_class           => 'MyCPAN::App::DPAN::SkipQueue',
-	organize_dists        => 0,
-	parallel_jobs         => 1,
-	pause_id              => 'DPAN',
-	reporter_class        => 'MyCPAN::App::DPAN::Reporter::Minimal',
-	backpan_dir           => $cwd,
-	fresh_start           => defined $ENV{DPAN_FRESH_START} ? $ENV{DPAN_FRESH_START} : 0,
-	skip_perl             => 0,
-	extra_reports_dir     => undef,
+	ignore_packages             => 'main MY MM DB bytes DynaLoader',
+	indexer_class               => 'MyCPAN::App::DPAN::Indexer',
+	dispatcher_class            => 'MyCPAN::Indexer::Dispatcher::Serial',
+	queue_class                 => 'MyCPAN::App::DPAN::SkipQueue',
+	organize_dists              => 0,
+	parallel_jobs               => 1,
+	pause_id                    => 'DPAN',
+	reporter_class              => 'MyCPAN::App::DPAN::Reporter::Minimal',
+	backpan_dir                 => $cwd,
+	fresh_start                 => defined $ENV{DPAN_FRESH_START} ? $ENV{DPAN_FRESH_START} : 0,
+	skip_perl                   => 0,
+	extra_reports_dir           => undef,
 	i_ignore_errors_at_my_peril => 0,
-	ignore_missing_dists  => 0,
+	ignore_missing_dists        => 0,
+	relative_paths_in_report    => 1,
 	);
 
 sub default_keys
