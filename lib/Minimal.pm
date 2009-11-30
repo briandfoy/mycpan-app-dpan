@@ -99,8 +99,11 @@ sub get_reporter
 			# this should be an absolute path
 			my $dist_file = $info->{dist_info}{dist_file};
 
-			$dist_file =~ s/^.*authors.id.// if 
-				$self->get_config->relative_paths_in_report;
+			if( $self->get_config->relative_paths_in_report )
+				{
+				$dist_file =~ s/^.*authors.id.//;
+				$dist_file =~ tr|\\|/|; # translate windows \ to Unix /, cheating
+				}
 			
 			$logger->warn( "No dist file for $module->{name}" )
 				unless defined $dist_file;
@@ -170,7 +173,7 @@ sub final_words
 			chomp;
 			my( $package, $version, $dist_file ) = split /\t/;
 			$version = undef if $version eq 'undef';
-			
+			$logger->warn( "$package has no distribution file: $file" );
 			unless( defined $package && length $package )
 				{
 				$logger->debug( "File $file line $.: no package! Line is [$_]" );
