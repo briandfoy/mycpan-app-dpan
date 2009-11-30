@@ -59,7 +59,6 @@ sub get_reporter
 	{
 	my( $self ) = @_;
 
-	
 	# why is this here?
 	my $base_dir = $self->get_config->backpan_dir;
 
@@ -77,13 +76,7 @@ sub get_reporter
 			return;
 			}
 
-		my $out_path = $self->get_report_path( $info );
-
-		open my($fh), ">:utf8", $out_path or 
-			$logger->fatal( "Could not open $out_path to record report: $!" );
-
-		print $fh "# Primary package [TAB] version [TAB] dist file [newline]\n";
-		
+		my( %Found_canonical, %Current_version, @packages_to_write );
 		MODULE: foreach my $module ( @{ $info->{dist_info}{module_info} || [] } )
 			{
 			# skip if we are ignoring those packages?
@@ -95,7 +88,17 @@ sub get_reporter
 				$logger->warn( "No primary package for $module->{name}" );				
 				next MODULE;
 				}
-
+			
+			next MODULE if $Found_canonical{ $module->{primary_package} };
+			{
+			no warnings qw(uninitialized numeric);
+			next MODULE if $version < $Current_version{ $module->{primary_package} };
+			}
+			
+			$Current_version{ $module->{primary_package} } = $version;
+			$Found_canonical{ $module->{primary_package} } = 1 if
+				$module->{primary_package} eq $module->{module_name_from_file_guess};
+				
 			# this should be an absolute path
 			my $dist_file = $info->{dist_info}{dist_file};
 
@@ -109,23 +112,44 @@ sub get_reporter
 			$logger->warn( "No dist file for $module->{name}" )
 				unless defined $dist_file;
 
-			print $fh join "\t",
+			push @packages_to_write, [
 				$module->{primary_package},
 				$version,
-				$dist_file;
-
-			print $fh "\n";
+				$dist_file,
+				];
 			}
-		close $fh;
 
-		$logger->error( "$out_path is missing!" ) unless -e $out_path;
+		$self->_write_file( $info, \@packages_to_write );
 
 		1;
 		};
 
 	$self->set_note( 'reporter', $reporter );
 	}
+
+sub _write_file
+	{
+	my( $self, $info, $packages ) = @_;
 	
+	my $out_path = $self->get_report_path( $info );
+	open my($fh), ">:utf8", $out_path or 
+	$logger->fatal( "Could not open $out_path to record report: $!" );
+
+	print $fh "# Primary package [TAB] version [TAB] dist file [newline]\n";		
+	
+	foreach my $tuple ( @$packages )
+		{
+		print $fh join "\t", @$tuple;
+		print $fh "\n";
+		}
+
+	close $fh;
+
+	$logger->error( "$out_path is missing!" ) unless -e $out_path;
+	
+	return 1;	
+	}
+
 =item final_words
 
 Runs after all the reporting for all distributions has finished. This
