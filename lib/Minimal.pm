@@ -10,7 +10,7 @@ use Carp;
 use Cwd;
 use File::Basename;
 use File::Path;
-use File::Spec::Functions qw(catfile rel2abs);
+use File::Spec::Functions qw(catfile rel2abs file_name_is_absolute);
 use Log::Log4perl;
 
 BEGIN {
@@ -79,7 +79,7 @@ sub get_reporter
 
 		my $out_path = $self->get_report_path( $info );
 
-		open my($fh), ">", $out_path or 
+		open my($fh), ">:utf8", $out_path or 
 			$logger->fatal( "Could not open $out_path to record report: $!" );
 
 		print $fh "# Primary package [TAB] version [TAB] dist file [newline]\n";
@@ -101,6 +101,7 @@ sub get_reporter
 
 			if( $self->get_config->relative_paths_in_report )
 				{
+				# XXX: what if there isn't an authors/id?
 				$dist_file =~ s/^.*authors.id.//;
 				$dist_file =~ tr|\\|/|; # translate windows \ to Unix /, cheating
 				}
@@ -159,8 +160,8 @@ sub final_words
 	FILE: foreach my $file ( $self->get_latest_module_reports )
 		{
 		$logger->debug( "Processing output file $file" );
-		
-		open my($fh), '<', $file or do {
+
+		open my($fh), '<:utf8', $file or do {
 			$logger->error( "Could not open [$file]: $!" );
 			next FILE;
 			};
@@ -173,26 +174,58 @@ sub final_words
 			chomp;
 			my( $package, $version, $dist_file ) = split /\t/;
 			$version = undef if $version eq 'undef';
-			$logger->warn( "$package has no distribution file: $file" );
-			unless( defined $package && length $package )
+			$logger->warn( "$package has no distribution file: $file" )
+				unless defined $dist_file;
+
+			unless( defined $package && length $package  )
 				{
 				$logger->debug( "File $file line $.: no package! Line is [$_]" );
 				next PACKAGE;
 				}
 
-			if( $self->get_config->organize_dists )
+			my $full_path = $dist_file;
+
+			unless( file_name_is_absolute( $full_path ) )
 				{
 				my $backpan_dir = ($self->get_config->backpan_dir)[0];
-				$dist_file = catfile( 
-					$backpan_dir, 
-					qw(authors id),
-					$dist_file
-					) if $self->get_config->relative_paths_in_reports;
+
+				# if we're using organize_dists, we created an authors/id
+				# directory under backpan_dir, so we have to put those
+				# three pieces together
+				if( $self->get_config->organize_dists )
+					{
+					$full_path = catfile( 
+						$backpan_dir, 
+						qw(authors id),
+						$dist_file
+						) ;
+					}
+				# otherwise, every path should be relative to $backpan_dir
+				# I'm not sure that is actually true though if backpan_dir
+				# is the current directory, and there is an authors/id
+				# under it
+				elsif( $self->get_config->relative_paths_in_report )
+					{
+					my $f1 = catfile( 
+						$backpan_dir, 
+						$dist_file
+						);
+					
+					my $f2 = catfile( 
+						$backpan_dir, 
+						qw(authors id),
+						$dist_file
+						);
+					
+					( $full_path ) = grep { -e } ( $f1, $f2 )
+					}
 				}
-			
+
 			$logger->debug( "dist_file is now [$dist_file]" );
-			next PACKAGE unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
-			my $dist_dir = dirname( $dist_file );
+			$logger->debug( "full_path is now [$full_path]" );
+
+			next PACKAGE unless -e $full_path; # && $dist_file =~ m/^\Q$backpan_dir/;
+			my $dist_dir = dirname( $full_path );
 			$dirs_needing_checksums{ $dist_dir }++;
 
 			# broken crap that works on Unix and Windows to make cpanp
@@ -210,11 +243,12 @@ sub final_words
 			
 			push @packages, [ $package, $version, $path ];
 			}
-		
+
 		# Some distros declare the same package in multiple files. We
 		# only want the one with the defined or highest version
 		my %Seen;
 		no warnings;
+
 		my @filtered_packages =
 			grep { ! $Seen{$_->[0]}++ }
 			map { my $s = $_; $s->[1] = 'undef' unless defined $s->[1]; $s }
