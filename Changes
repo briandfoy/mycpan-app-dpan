@@ -1,5 +1,13 @@
 # Changes for DarkPAN::Creator
 
+1.28_02 - Mon Nov 30 17:49:29 2009
+	* Completely redo how the Minimal reporter decides which 
+	packages to include in the report. It looks at the package 
+	name and compares it to the file. If it looks like they
+	are the same, that one wins even if another file has the
+	same package with a higher version. Otherwise, only the
+	highest version of a package gets into the report.
+
 1.28 - Fri Nov 20 05:44:47 2009
 	* Put relative paths in the indexer reports if you're
 	using the organize dists option.
