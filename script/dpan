@@ -21,6 +21,9 @@ elsif( grep /^-?-v(ersion)?$/, @ARGV )
 
 $ENV{MYCPAN_LOG4PERL_FILE} = $ENV{DPAN_LOG4PERL_FILE} 
 	if defined $ENV{DPAN_LOG4PERL_FILE};
+
+$ENV{MYCPAN_LOGLOGLEVEL} = $ENV{DPAN_LOGLEVEL} 
+	if defined $ENV{DPAN_LOGLEVEL};
 	
 my $application = MyCPAN::App::DPAN->activate( @ARGV );
 
@@ -301,6 +304,11 @@ the C<fresh_start> configuration directive.
 
 The path to the log4perl configuration file. You can also set this with
 the <-l> switch of the C<log4perl_file> configuration directive.
+
+=item DPAN_LOGLEVEL
+
+The Log4perl level for easyinit. This won't affect the logging level if
+you specify a log configuration file.
 
 =back
 

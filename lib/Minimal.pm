@@ -251,7 +251,7 @@ sub final_words
 			$logger->debug( "full_path is now [$full_path]" );
 			}
 			
-			next PACKAGE unless -e $full_path; # && $dist_file =~ m/^\Q$backpan_dir/;
+			next PACKAGE unless defined $full_path && -e $full_path; # && $dist_file =~ m/^\Q$backpan_dir/;
 			my $dist_dir = dirname( $full_path );
 			$dirs_needing_checksums{ $dist_dir }++;
 
