@@ -12,7 +12,7 @@ WriteMakefile(
 	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
 	
 	'PREREQ_PM'    => { 
-		'CPAN::Checksums'      => '0'
+		'CPAN::Checksums'      => '0',
 		'CPAN::PackageDetails' => '0.24',
 		'Log::Log4perl'        => '0',
 		'MyCPAN::Indexer'      => '1.28_04',
