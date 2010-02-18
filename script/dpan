@@ -496,7 +496,7 @@ so by default C<dpan> will create stub files for these files instead
 of fetching the real ones.
 
 If you are using C<CPAN::Mini>, you can mirror C<00whois.xml> by adding
-a line to your R<.minicpanrc>:
+a line to your F<.minicpanrc>:
 
 	also_mirror authors/00whois.xml
 
