@@ -166,7 +166,12 @@ sub _write_error_file
 	open my($fh), ">:utf8", $out_path or
 	$reporter_logger->fatal( "Could not open $out_path to record error report: $!" );
 
+	print $fh "ERRORS:\n", 
+		map { "$_: $info->{run_info}{$_}\n" }
+		qw( error fatal_error );
+		
 	use Data::Dumper;
+	print $fh '-' x 73, "\n";
 	print $fh Dumper( $info );
 
 	close $fh;
