@@ -167,7 +167,7 @@ sub _write_error_file
 	$reporter_logger->fatal( "Could not open $out_path to record error report: $!" );
 
 	print $fh "ERRORS:\n", 
-		map { "$_: $info->{run_info}{$_}\n" }
+		map { sprintf "%s: %s\n", $_, $info->{run_info}{$_} || '' }
 		qw( error fatal_error );
 		
 	use Data::Dumper;
