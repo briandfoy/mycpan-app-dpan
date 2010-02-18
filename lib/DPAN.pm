@@ -9,7 +9,7 @@ use Cwd qw(cwd);
 use File::Spec::Functions;
 use Log::Log4perl;
 
-$VERSION = '1.28_05';
+$VERSION = '1.28_06';
 
 BEGIN {
 
@@ -20,6 +20,7 @@ my $cwd = cwd();
 my $report_dir = catfile( $cwd, 'indexer_reports' );
 
 my %Defaults = (
+    author_map                  => undef,
 	backpan_dir                 => $cwd,
 	collator_class              => 'MyCPAN::App::DPAN::Reporter::Minimal',
 	dispatcher_class            => 'MyCPAN::Indexer::Dispatcher::Serial',
@@ -37,6 +38,7 @@ my %Defaults = (
 	relative_paths_in_report    => 1,
 	reporter_class              => 'MyCPAN::App::DPAN::Reporter::Minimal',
 	skip_perl                   => 0,
+	use_real_whois              => 0,
 	);
 
 sub default_keys
@@ -44,7 +46,7 @@ sub default_keys
 	my %Seen;
 	grep { ! $Seen{$_}++ } keys %Defaults, $_[0]->SUPER::default_keys;
 	}
-	
+
 sub default
 	{
 	exists $Defaults{ $_[1] }
@@ -60,13 +62,13 @@ $logger = Log::Log4perl->get_logger( 'backpan_indexer' );
 sub activate_steps
 	{
 	qw(
-	process_options 
-	setup_coordinator 
-	setup_environment 
+	process_options
+	setup_coordinator
+	setup_environment
 	handle_config
-	setup_logging 
-	fresh_start 
-	setup_dirs 
+	setup_logging
+	fresh_start
+	setup_dirs
 	run_components
 	);
 	}
@@ -86,18 +88,18 @@ sub components
 sub fresh_start
 	{
 	my( $application ) = @_;
-	
+
 	return unless $application->get_coordinator->get_config->fresh_start;
-	
+
 	my $indexer_reports_dir = $application->get_coordinator->get_config->report_dir;
-	
+
 	require File::Path;
-	
-	File::Path::remove_tree( $indexer_reports_dir ); 
-		
+
+	File::Path::remove_tree( $indexer_reports_dir );
+
 	return 1;
 	}
-	
+
 1;
 
 =head1 NAME
@@ -107,13 +109,13 @@ MyCPAN::App::DPAN - Create a CPAN-like structure out of some dists
 =head1 SYNOPSIS
 
 	use MyCPAN::App::DPAN;
-	
+
 	my $application = MyCPAN::App::DPAN->activate( @ARGV );
-	
+
 	# do some other stuff, anything that you like
-	
+
 	$application->activate_end;
-	
+
 =head1 DESCRIPTION
 
 This module ties together all the bits to let the C<dpan> do its work. It
@@ -128,7 +130,7 @@ creates the PAUSE index files. The examination might take several minutes
 (or even hours depending on how much you want to index), so you have a chance
 to check the state of the world before the next step.
 
-When you call C<activate_end>, the program takes the results from the 
+When you call C<activate_end>, the program takes the results from the
 previous step and creates the PAUSE index files in the F<modules> directory.
 This step should be very quick since all of the information is ready-to-go.
 

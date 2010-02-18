@@ -16,7 +16,7 @@ use File::Path qw(mkpath);
 use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile rel2abs);
 
-$VERSION = '1.28_05';
+$VERSION = '1.28_06';
 
 =head1 NAME
 
@@ -65,7 +65,7 @@ Inherited from MyCPAN::App::BackPAN::Indexer
 
 =item get_collator
 
-This Reporter class also implements its Collator since the two are 
+This Reporter class also implements its Collator since the two are
 coupled by the report format. It's a wrapper around C<final_words>,
 which previously did the same thing.
 
@@ -112,7 +112,7 @@ sub final_words
 	$collator_logger->info( "Creating index files" );
 
 	$self->_init_skip_package_from_config;
-	
+
 	require version;
 	foreach my $file ( readdir( $dh ) )
 		{
@@ -195,40 +195,40 @@ been the version for another package. For example:
 		}
 
 	$self->_create_index_files( $package_details, [ keys %dirs_needing_checksums ] );
-	
+
 	1;
 	}
 
 sub _create_index_files
 	{
 	my( $self, $package_details, $dirs_needing_checksums ) = @_;
-	
+
 	my $index_dir = do {
 		my $d = $self->get_config->backpan_dir;
-		
+
 		# there might be more than one if we pull from multiple sources
 		# so make the index in the first one.
 		my $abs = rel2abs( ref $d ? $d->[0] : $d );
 		$abs =~ s/authors.id.*//;
 		catfile( $abs, 'modules' );
 		};
-	
+
 	mkpath( $index_dir ) unless -d $index_dir;
 
 	my $packages_file = catfile( $index_dir, '02packages.details.txt.gz' );
 
-	$reporter_logger->info( "Writing 02packages.details.txt.gz" );	
+	$reporter_logger->info( "Writing 02packages.details.txt.gz" );
 	$package_details->write_file( $packages_file );
 
-	$reporter_logger->info( "Writing 03modlist.txt.gz" );	
+	$reporter_logger->info( "Writing 03modlist.txt.gz" );
 	$self->create_modlist( $index_dir );
 
-	$reporter_logger->info( "Creating CHECKSUMS files" );	
+	$reporter_logger->info( "Creating CHECKSUMS files" );
 	$self->create_checksums( $dirs_needing_checksums );
-	
+
 	1;
 	}
-	
+
 =item guess_package_name
 
 Given information about the module, make a guess about which package
@@ -242,7 +242,7 @@ sub guess_package_name
 	{
 	my( $self, $module_info ) = @_;
 
-	
+
 	}
 
 =item get_package_version( MODULE_INFO, PACKAGE )
@@ -253,7 +253,7 @@ primary one that you should index.
 
 NOT YET IMPLEMENTED
 
-=cut                                    
+=cut
 
 sub get_package_version
 	{
@@ -269,7 +269,7 @@ By default, this skips the Perl special packages specified by the
 ignore_packages configuration. By default, ignore packages is:
 
 	main
-	MY 
+	MY
 	MM
 	DB
 	bytes
@@ -290,24 +290,24 @@ my $initialized = 0;
 my %skip_packages;
 
 sub _skip_package_initialized { $initialized }
-	
+
 sub _init_skip_package_from_config
 	{
 	my( $self ) = @_;
-	
+
 	%skip_packages =
 		map { $_, 1 }
 		grep { defined }
 		split /\s+/,
 		$self->get_notes( 'config' )->ignore_packages || '';
-	
+
 	$initialized = 1;
 	}
-	
+
 sub skip_package
 	{
 	my( $self, $package ) = @_;
-		
+
 	exists $skip_packages{ $package }
 	}
 }

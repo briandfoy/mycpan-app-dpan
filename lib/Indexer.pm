@@ -16,7 +16,7 @@ use File::Path qw(mkpath);
 use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile rel2abs);
 
-$VERSION = '1.28_05';
+$VERSION = '1.28_06';
 
 =head1 NAME
 
@@ -97,24 +97,24 @@ sub find_module_techniques
 Save this feature for another time
 
 	my $config = $self->get_coordinator->get_config;
-	
+
 	if( my @techniques = $config->get( 'find_module_techniques' ) )
 		{
 		$logger->debug( "Using techniques [@techniques] to find modules" );
-		
+
 		@techniques = map {
 			my $can =  $self->can( $_ );
 			$logger->warn( "The technique [$_] is unknown" )
 				unless $can;
 			$can ? [ $_, 'Technique $_ specified by config' ] : ();
 			} @techniques;
-			
+
 		return \@techniques;
 		}
 
 =cut
 
-	
+
 	(
 	[ 'look_in_cwd_and_lib',       "Guessed from looking in lib/"      ],
 	[ 'look_in_lib',               "Guessed from looking in lib/"      ],
