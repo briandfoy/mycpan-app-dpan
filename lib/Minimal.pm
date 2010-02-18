@@ -507,7 +507,7 @@ sub create_index_files
 	my $package_details = $self->get_note( 'package_details' );
 	if( -e catfile( $index_dir, '.svn' ) )
 		{
-		$package_details->add_header( 'X-SVN-Id', '$Id' );
+		$package_details->set_header( 'X-SVN-Id', '$Id$' );
 		}
 
 	# inside write_file, the module writes to a temp file then renames

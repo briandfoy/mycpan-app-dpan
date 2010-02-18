@@ -1,5 +1,6 @@
 Changes
 lib/AsYAML.pm
+lib/CPANUtils.pm
 lib/DPAN.pm
 lib/Indexer.pm
 lib/Minimal.pm
@@ -12,6 +13,7 @@ script/backpan_indexer.config.dpan
 script/dpan
 t/app/dpan.t
 t/compile.t
+t/cpan/get_cpan_mirrors.t
 t/create_index_files.t
 t/get_latest_module_reports.t
 t/indexer.t
