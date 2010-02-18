@@ -1,5 +1,22 @@
 # Changes for DarkPAN::Creator
 
+1.28_06 - Thu Feb 18 13:55:17 2010
+	* The error reports from Minimal.pm now dump all the info the indexer
+	collected, and puts the error messages at the top of the error report.
+	* If there is an .svn directory in the reporistory, add an X-SVN
+	header to 02packages.details.txt.gz
+	* dpan now prints a message reminding you to reload your CPAN indices
+	in your favorite tool.
+	* Supports 00whois.xml and 01mailrc.txt.gz, either by modifying the real
+	ones, or making stubs and faking it. This lets CPAN::Mini::Webserver
+	work.
+	* The Reporter final_words stuff is now moved in its own Collator 
+	object. This removes a lot of special cases for hooking into the 
+	Reporter outside of examining a dist.
+
+1.28_03 - Wed Dec 9 19:36:54 2009
+	* Support the DPAN_LOGLEVEL environment variable
+	
 1.28_02 - Mon Nov 30 17:49:29 2009
 	* Completely redo how the Minimal reporter decides which 
 	packages to include in the report. It looks at the package 
