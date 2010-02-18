@@ -349,6 +349,23 @@ Affected components: Collator
 
 Config level: DPAN
 
+=item prefer_bin
+
+If set to a true value, C<dpan> will try to use an external binary
+before it results to a pure Perl option. This matters mostly for
+C<Archive::Extract>. Your C<tar> utility may have better luck than
+C<Archive::Tar>.
+
+This setting overrides the C<PREFER_BIN> environment variable. You
+can also set that environment variable to change how C<Archive::Extract>
+decides to extract an archive.
+
+Default: 0
+
+Affected components: Indexer
+
+Config level: MyCPAN
+
 =item queue_class MyCPAN::Indexer::SomeOtherQueue
 
 The Perl class to use as the Queue component. See
@@ -477,6 +494,11 @@ C<dpan> finds in the repository (see C<author_map>).
 The default case for most C<dpan> options is to avoid the real CPAN,
 so by default C<dpan> will create stub files for these files instead
 of fetching the real ones.
+
+If you are using C<CPAN::Mini>, you can mirror C<00whois.xml> by adding
+a line to your R<.minicpanrc>:
+
+	also_mirror authors/00whois.xml
 
 Default: 0
 

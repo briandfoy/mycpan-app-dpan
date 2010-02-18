@@ -149,6 +149,7 @@ sub make_fake_whois
 		return;
 		}
 
+	no warnings;
 	return
 		$class->make_fake_01mailrc( $author_dir, $logger )
 			+

@@ -120,21 +120,27 @@ sub get_reporter
 				];
 			}
 
-		$self->_write_file( $info, \@packages_to_write );
-
+		if( $info->{run_info}{completed} )
+			{
+			$self->_write_success_file( $info, \@packages_to_write );
+			}
+		else
+			{
+			$self->_write_error_file( $info );			
+			}
 		1;
 		};
 
 	$self->set_note( 'reporter', $reporter );
 	}
 
-sub _write_file
+sub _write_success_file
 	{
 	my( $self, $info, $packages ) = @_;
 
 	my $out_path = $self->get_report_path( $info );
 	open my($fh), ">:utf8", $out_path or
-	$reporter_logger->fatal( "Could not open $out_path to record report: $!" );
+	$reporter_logger->fatal( "Could not open $out_path to record success report: $!" );
 
 	print $fh "# Primary package [TAB] version [TAB] dist file [newline]\n";
 
@@ -146,6 +152,26 @@ sub _write_file
 
 	close $fh;
 
+	# check that the file is where it should be
+	$reporter_logger->error( "$out_path is missing!" ) unless -e $out_path;
+
+	return 1;
+	}
+
+sub _write_error_file
+	{
+	my( $self, $info ) = @_;
+
+	my $out_path = $self->get_report_path( $info );
+	open my($fh), ">:utf8", $out_path or
+	$reporter_logger->fatal( "Could not open $out_path to record error report: $!" );
+
+	use Data::Dumper;
+	print $fh Dumper( $info );
+
+	close $fh;
+
+	# check that the file is where it should be
 	$reporter_logger->error( "$out_path is missing!" ) unless -e $out_path;
 
 	return 1;
@@ -474,6 +500,10 @@ sub create_index_files
 	my $packages_file = catfile( $index_dir, $_02packages_name );
 
 	my $package_details = $self->get_note( 'package_details' );
+	if( -e catfile( $index_dir, '.svn' ) )
+		{
+		$package_details->add_header( 'X-SVN-Id', '$Id' );
+		}
 
 	# inside write_file, the module writes to a temp file then renames
 	# it. It doesn't do any other checking. Should some of this be in

@@ -73,6 +73,27 @@ sub activate_steps
 	);
 	}
 
+sub activate_end
+	{
+	my( $application ) = @_;
+
+	print <<"HERE";
+=================================================
+Ensure you reload your indices in your CPAN tool!
+
+For CPAN.pm, use:
+
+	cpan> reload index
+    
+For CPANPLUS, use
+
+	CPAN Terminal> x
+=================================================
+HERE
+
+	$application->SUPER::activate_end;
+	}
+
 sub components
 	{
 	(
