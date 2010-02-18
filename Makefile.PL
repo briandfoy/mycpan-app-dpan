@@ -16,6 +16,7 @@ WriteMakefile(
 		'CPAN::PackageDetails' => '0.24',
 		'Log::Log4perl'        => '0',
 		'MyCPAN::Indexer'      => '1.28_04',
+		'LWP::Simple'          => '0',
 		'Test::Output'         => '0.13',
 		'version'              => '0',
 		},
@@ -26,6 +27,7 @@ WriteMakefile(
 		'lib/Minimal.pm'   => '$(INST_LIBDIR)/DPAN/Reporter/Minimal.pm',
 		'lib/AsYAML.pm'    => '$(INST_LIBDIR)/DPAN/Reporter/AsYAML.pm',
 		'lib/SkipQueue.pm' => '$(INST_LIBDIR)/DPAN/SkipQueue.pm',
+		'lib/CPANUtils.pm' => '$(INST_LIBDIR)/DPAN/CPANUtils.pm',
 		},
 
 

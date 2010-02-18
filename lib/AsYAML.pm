@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use subs qw(get_caller_info);
-use vars qw($VERSION $logger);
+use vars qw($VERSION  $reporter_logger $collator_logger);
 
 # don't change the inheritance order
 # this should be done with roles, but we don't quite have that yet
@@ -16,7 +16,7 @@ use File::Path qw(mkpath);
 use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile rel2abs);
 
-$VERSION = '1.28_04';
+$VERSION = '1.28_05';
 
 =head1 NAME
 
@@ -24,10 +24,12 @@ MyCPAN::App::DPAN::Reporter::AsYAML - Record the indexing results as YAML
 
 =head1 SYNOPSIS
 
-Use this in the dpan config by specifying it as the reporter class:
+Use this in the dpan config by specifying it as the reporter class and
+the collator class:
 
 	# in dpan.config
 	reporter_class  MyCPAN::App::DPAN::Reporter::AsYAML
+	collator_class  MyCPAN::App::DPAN::Reporter::AsYAML
 
 =head1 DESCRIPTION
 
@@ -44,7 +46,8 @@ use Cwd  qw(cwd);
 use Log::Log4perl;
 
 BEGIN {
-	$logger = Log::Log4perl->get_logger( 'Reporter' );
+	$reporter_logger = Log::Log4perl->get_logger( 'Reporter' );
+	$collator_logger = Log::Log4perl->get_logger( 'Collator' );
 	}
 
 # Override the exit from the parent class so we can embed a run
@@ -60,6 +63,27 @@ sub _exit { 1 }
 
 Inherited from MyCPAN::App::BackPAN::Indexer
 
+=item get_collator
+
+This Reporter class also implements its Collator since the two are 
+coupled by the report format. It's a wrapper around C<final_words>,
+which previously did the same thing.
+
+=cut
+
+sub get_collator
+	{
+	#TRACE( sub { get_caller_info } );
+
+	my( $self ) = @_;
+
+	my $collator = sub { $_[0]->final_words( $_[1] ) };
+
+	$self->set_note( $_[0]->collator_type, $collator );
+
+	1;
+	}
+
 =item final_words
 
 Creates the F<02packages.details.txt.gz> and F<CHECKSUMS> files once
@@ -72,20 +96,20 @@ sub final_words
 	# This is where I want to write 02packages and CHECKSUMS
 	my( $self ) = @_;
 
-	$logger->trace( "Final words from the DPAN Reporter" );
+	$collator_logger->trace( "Final words from the DPAN Reporter" );
 
 	my $report_dir = $self->get_config->success_report_subdir;
-	$logger->debug( "Report dir is $report_dir" );
+	$collator_logger->debug( "Report dir is $report_dir" );
 
 	opendir my($dh), $report_dir or
-		$logger->fatal( "Could not open directory [$report_dir]: $!");
+		$collator_logger->fatal( "Could not open directory [$report_dir]: $!");
 
 	my %dirs_needing_checksums;
 
 	require CPAN::PackageDetails;
 	my $package_details = CPAN::PackageDetails->new;
 
-	$logger->info( "Creating index files" );
+	$collator_logger->info( "Creating index files" );
 
 	$self->_init_skip_package_from_config;
 	
@@ -93,9 +117,9 @@ sub final_words
 	foreach my $file ( readdir( $dh ) )
 		{
 		next unless $file =~ /\.yml\z/;
-		$logger->debug( "Processing output file $file" );
+		$collator_logger->debug( "Processing output file $file" );
 		my $yaml = eval { YAML::LoadFile( catfile( $report_dir, $file ) ) } or do {
-			$logger->error( "$file: $@" );
+			$collator_logger->error( "$file: $@" );
 			next;
 			};
 
@@ -138,13 +162,13 @@ been the version for another package. For example:
 
 			( my $version_variable = $module->{version_info}{identifier} || '' )
 				=~ s/(?:\:\:)?VERSION$//;
-			$logger->debug( "Package from version variable is $version_variable" );
+			$collator_logger->debug( "Package from version variable is $version_variable" );
 
 			PACKAGE: foreach my $package ( @$packages )
 				{
 				if( $version_variable && $version_variable ne $package )
 					{
-					$logger->debug( "Skipping package [$package] since version variable [$version_variable] is in a different package" );
+					$collator_logger->debug( "Skipping package [$package] since version variable [$version_variable] is in a different package" );
 					next;
 					}
 
@@ -157,7 +181,7 @@ been the version for another package. For example:
 
 				if( $self->skip_package( $package ) )
 					{
-					$logger->debug( "Skipping $package: excluded by config" );
+					$collator_logger->debug( "Skipping $package: excluded by config" );
 					next PACKAGE;
 					}
 
@@ -193,13 +217,13 @@ sub _create_index_files
 
 	my $packages_file = catfile( $index_dir, '02packages.details.txt.gz' );
 
-	$logger->info( "Writing 02packages.details.txt.gz" );	
+	$reporter_logger->info( "Writing 02packages.details.txt.gz" );	
 	$package_details->write_file( $packages_file );
 
-	$logger->info( "Writing 03modlist.txt.gz" );	
+	$reporter_logger->info( "Writing 03modlist.txt.gz" );	
 	$self->create_modlist( $index_dir );
 
-	$logger->info( "Creating CHECKSUMS files" );	
+	$reporter_logger->info( "Creating CHECKSUMS files" );	
 	$self->create_checksums( $dirs_needing_checksums );
 	
 	1;
@@ -317,11 +341,11 @@ sub create_modlist
 	my( $self, $index_dir ) = @_;
 
 	my $module_list_file = catfile( $index_dir, '03modlist.data.gz' );
-	$logger->debug( "modules list file is [$module_list_file]");
+	$reporter_logger->debug( "modules list file is [$module_list_file]");
 
 	if( -e $module_list_file )
 		{
-		$logger->debug( "File [$module_list_file] already exists!" );
+		$reporter_logger->debug( "File [$module_list_file] already exists!" );
 		return 1;
 		}
 
@@ -359,8 +383,8 @@ sub create_checksums
 	foreach my $dir ( @$dirs )
 		{
 		my $rc = eval{ CPAN::Checksums::updatedir( $dir ) };
-			$logger->error( "Couldn't create CHECKSUMS for $dir: $@" ) if $@;
-			$logger->info(
+			$reporter_logger->error( "Couldn't create CHECKSUMS for $dir: $@" ) if $@;
+			$reporter_logger->info(
 				do {
 					  if(    $rc == 1 ) { "Valid CHECKSUMS file is already present" }
 					  elsif( $rc == 2 ) { "Wrote new CHECKSUMS file in $dir" }
@@ -384,7 +408,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2008-2009, brian d foy, All Rights Reserved.
+Copyright (c) 2008-2010, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 

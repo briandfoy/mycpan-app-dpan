@@ -2,7 +2,7 @@
 
 use MyCPAN::App::DPAN 1.28;
 
-our $VERSION = '1.28_04';
+our $VERSION = '1.28_05';
 
 if( grep /^-?-h(elp)?$/, @ARGV ) {	
 	require Pod::Usage;
@@ -26,10 +26,6 @@ $ENV{MYCPAN_LOGLOGLEVEL} = $ENV{DPAN_LOGLEVEL}
 	if defined $ENV{DPAN_LOGLEVEL};
 	
 my $application = MyCPAN::App::DPAN->activate( @ARGV );
-
-my $reporter = $application->get_coordinator->get_reporter;
-
-$reporter->final_words if eval { $reporter->can( 'final_words' ) };
 
 $application->activate_end;
 

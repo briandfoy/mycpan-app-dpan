@@ -86,7 +86,7 @@ BEGIN {
 use Log::Log4perl;
 
 Log::Log4perl->init( \ '
-    log4perl.category.Reporter          = FATAL, String
+    log4perl.category.Collator        = FATAL, String
 
     log4perl.appender.String          = Log::Log4perl::Appender::String
     log4perl.appender.String.layout   = Log::Log4perl::Layout::PatternLayout
@@ -109,6 +109,7 @@ sub get_note {
 
 sub create_modlist   { 1 };
 sub create_checksums { 1 };
+sub update_whois     { 1 };
 
 package Mock::CPAN::PackageDetails;
 use Carp qw(croak);

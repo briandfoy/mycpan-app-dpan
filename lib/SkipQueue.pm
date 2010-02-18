@@ -4,7 +4,7 @@ use warnings;
 
 use base qw(MyCPAN::Indexer::Queue);
 use vars qw($VERSION $logger);
-$VERSION = '1.28_04';
+$VERSION = '1.28_05';
 
 use File::Basename;
 use File::Find;
@@ -134,7 +134,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009, brian d foy, All Rights Reserved.
+Copyright (c) 2009-2010, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 

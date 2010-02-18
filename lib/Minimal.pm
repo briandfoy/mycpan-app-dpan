@@ -3,8 +3,8 @@ use strict;
 use warnings;
 
 use base qw(MyCPAN::Indexer::Reporter::Base);
-use vars qw($VERSION $logger);
-$VERSION = '1.28_04';
+use vars qw($VERSION $reporter_logger $collator_logger);
+$VERSION = '1.28_05';
 
 use Carp;
 use Cwd;
@@ -14,7 +14,8 @@ use File::Spec::Functions qw(catfile rel2abs file_name_is_absolute);
 use Log::Log4perl;
 
 BEGIN {
-	$logger = Log::Log4perl->get_logger( 'Reporter' );
+	$reporter_logger = Log::Log4perl->get_logger( 'Reporter' );
+	$collator_logger = Log::Log4perl->get_logger( 'Collator' );
 	}
 
 =head1 NAME
@@ -72,7 +73,7 @@ sub get_reporter
 
 		unless( defined $info )
 			{
-			$logger->error( "info is undefined!" );
+			$reporter_logger->error( "info is undefined!" );
 			return;
 			}
 
@@ -85,7 +86,7 @@ sub get_reporter
 
 			unless( defined $module->{primary_package} )
 				{
-				$logger->warn( "No primary package for $module->{name}" );				
+				$reporter_logger->warn( "No primary package for $module->{name}" );				
 				next MODULE;
 				}
 			
@@ -109,7 +110,7 @@ sub get_reporter
 				$dist_file =~ tr|\\|/|; # translate windows \ to Unix /, cheating
 				}
 			
-			$logger->warn( "No dist file for $module->{name}" )
+			$reporter_logger->warn( "No dist file for $module->{name}" )
 				unless defined $dist_file;
 
 			push @packages_to_write, [
@@ -133,7 +134,7 @@ sub _write_file
 	
 	my $out_path = $self->get_report_path( $info );
 	open my($fh), ">:utf8", $out_path or 
-	$logger->fatal( "Could not open $out_path to record report: $!" );
+	$reporter_logger->fatal( "Could not open $out_path to record report: $!" );
 
 	print $fh "# Primary package [TAB] version [TAB] dist file [newline]\n";		
 	
@@ -145,9 +146,33 @@ sub _write_file
 
 	close $fh;
 
-	$logger->error( "$out_path is missing!" ) unless -e $out_path;
+	$reporter_logger->error( "$out_path is missing!" ) unless -e $out_path;
 	
 	return 1;	
+	}
+
+=item get_collator
+
+This Reporter class also implements its Collator since the two are 
+coupled by the report format. It's a wrapper around C<final_words>,
+which previously did the same thing.
+
+=cut
+
+sub get_collator
+	{
+	#TRACE( sub { get_caller_info } );
+
+	my( $self ) = @_;
+
+	my $collator = sub { 
+		$self->final_words;
+		$self->create_index_files;
+		};
+
+	$self->set_note( $_[0]->collator_type, $collator );
+
+	1;
 	}
 
 =item final_words
@@ -167,7 +192,7 @@ sub final_words
 	# This is where I want to write 02packages and CHECKSUMS
 	my( $self ) = @_;
 
-	$logger->trace( "Final words from the DPAN Reporter" );
+	$collator_logger->trace( "Final words from the DPAN Reporter" );
 
 	my %dirs_needing_checksums;
 
@@ -176,17 +201,17 @@ sub final_words
 		allow_packages_only_once => 0
 		);
 
-	$logger->info( "Creating index files" );
+	$collator_logger->info( "Creating index files" );
 
 	$self->_init_skip_package_from_config;
 	
 	require version;
 	FILE: foreach my $file ( $self->get_latest_module_reports )
 		{
-		$logger->debug( "Processing output file $file" );
+		$collator_logger->debug( "Processing output file $file" );
 
 		open my($fh), '<:utf8', $file or do {
-			$logger->error( "Could not open [$file]: $!" );
+			$collator_logger->error( "Could not open [$file]: $!" );
 			next FILE;
 			};
 		
@@ -198,12 +223,12 @@ sub final_words
 			chomp;
 			my( $package, $version, $dist_file ) = split /\t/;
 			$version = undef if $version eq 'undef';
-			$logger->warn( "$package has no distribution file: $file" )
+			$collator_logger->warn( "$package has no distribution file: $file" )
 				unless defined $dist_file;
 
 			unless( defined $package && length $package  )
 				{
-				$logger->debug( "File $file line $.: no package! Line is [$_]" );
+				$collator_logger->debug( "File $file line $.: no package! Line is [$_]" );
 				next PACKAGE;
 				}
 
@@ -247,8 +272,8 @@ sub final_words
 
 			{
 			no warnings 'uninitialized';
-			$logger->debug( "dist_file is now [$dist_file]" );
-			$logger->debug( "full_path is now [$full_path]" );
+			$collator_logger->debug( "dist_file is now [$dist_file]" );
+			$collator_logger->debug( "full_path is now [$full_path]" );
 			}
 			
 			next PACKAGE unless defined $full_path && -e $full_path; # && $dist_file =~ m/^\Q$backpan_dir/;
@@ -264,7 +289,7 @@ sub final_words
 
 			if( $self->skip_package( $package ) )
 				{
-				$logger->debug( "Skipping $package: excluded by config" );
+				$collator_logger->debug( "Skipping $package: excluded by config" );
 				next PACKAGE;
 				}
 			
@@ -315,7 +340,7 @@ backpan_dir (some things might have moved around), gets the reports for
 sub get_latest_module_reports
 	{
 	my( $self ) = @_;
-	$logger->info( "In get_latest_module_reports" );
+	$reporter_logger->info( "In get_latest_module_reports" );
 	my $report_names_by_dist_names = $self->_get_report_names_by_dist_names;
 	
 	my $all_reports = $self->_get_all_reports;
@@ -336,7 +361,7 @@ sub get_latest_module_reports
 	my $extra_reports = $self->_get_extra_reports || [];
 	
 	push @files, @$extra_reports;
-	$logger->debug( "Adding extra reports [@$extra_reports]" );
+	$reporter_logger->debug( "Adding extra reports [@$extra_reports]" );
 
 	@files;
 	}
@@ -346,10 +371,10 @@ sub _get_all_reports
 	my( $self ) = @_;
 	
 	my $report_dir = $self->get_success_report_dir;
-	$logger->debug( "Report dir is $report_dir" );
+	$reporter_logger->debug( "Report dir is $report_dir" );
 
 	opendir my($dh), $report_dir or
-		$logger->fatal( "Could not open directory [$report_dir]: $!");	
+		$reporter_logger->fatal( "Could not open directory [$report_dir]: $!");	
 	
 	my @reports = readdir( $dh );
 
@@ -371,9 +396,9 @@ sub _get_report_names_by_dist_names
 	# these are the directories to index
 	my @dirs = do {
 		my $item = $self->get_config->backpan_dir || '';
-		split /\s+/, $item;
+		split /\x00/, $item;
 		};
-	$logger->debug( "Queue directories are [@dirs]" );
+	$reporter_logger->debug( "Queue directories are [@dirs]" );
 	
 	# This is the list of distributions in the indexed directories
 	my $dists = $queuer->_get_file_list( @dirs );
@@ -399,33 +424,34 @@ sub _get_extra_reports
 	
 	my $dir = $self->get_config->extra_reports_dir;
 	return [] unless defined $dir;
-	$logger->debug( "Extra reports directory is [$dir]" );
+	$reporter_logger->debug( "Extra reports directory is [$dir]" );
 
 	my $cwd = cwd();
-	$logger->debug( "Extra reports directory does not exist! Cwd is [$cwd]" )
+	$reporter_logger->debug( "Extra reports directory does not exist! Cwd is [$cwd]" )
 		unless -d $dir;
 	
 	my $glob = catfile(
 		$dir,
 		"*." . $self->get_report_file_extension
 		);
-	$logger->debug( "glob pattern is [$glob]" );
+	$reporter_logger->debug( "glob pattern is [$glob]" );
 	
 	my @reports = glob( $glob );
-	$logger->debug( "Got extra reports [@reports]" );
+	$reporter_logger->debug( "Got extra reports [@reports]" );
 	
 	return \@reports;
 	}
 	
 =item create_index_files
 
-Creates the 02packages.details.txt.gz and 03modlist.txt.gz files. If there
-is a problem, it logs a fatal message and returns nothing. If everything works,
-it returns true.
+Creates the F<02packages.details.txt.gz> and F<03modlist.txt.gz>
+files. If there is a problem, it logs a fatal message and returns
+nothing. If everything works, it returns true.
 
-It initially creates the 02packages.details.txt.gz as a temporary file. Before
-it moves it to its final name, it checks the file with CPAN::PackageDetails::check_file
-to ensure it is valid. If it isn't, it stops the process.
+It initially creates the F<02packages.details.txt.gz> as a temporary
+file. Before it moves it to its final name, it checks the file with
+C<CPAN::PackageDetails::check_file> to ensure it is valid. If it
+isn't, it stops the process.
 
 =cut
 
@@ -459,7 +485,7 @@ sub create_index_files
 	
 	unless( $count > 0 )
 		{
-		$logger->fatal( "There are no entries to put into $_02packages_name!" );	
+		$collator_logger->fatal( "There are no entries to put into $_02packages_name!" );	
 		return;			
 		}
 		
@@ -468,7 +494,7 @@ sub create_index_files
 	# with a bad one at this level.
 	{ # scope for $temp_file
 	my $temp_file = "$packages_file-$$-trial";
-	$logger->info( "Writing $temp_file" );	
+	$collator_logger->info( "Writing $temp_file" );	
 	$package_details->write_file( $temp_file );
 
 	# We tell it to start in $index_dir, but that might have authors/id under it
@@ -483,13 +509,13 @@ sub create_index_files
 	# if there is an authors/id under the dpan_dir, let's give that path to
 	# check_file
 	$dpan_dir = $dpan_authors_id if -d $dpan_authors_id;
-	$logger->debug( "Using dpan_dir => $dpan_dir" );	
+	$collator_logger->debug( "Using dpan_dir => $dpan_dir" );	
 
 
 	# Check the trial file for errors	
 	unless( $self->get_config->i_ignore_errors_at_my_peril )
 		{
-		$logger->info( "Checking validity of $temp_file" );
+		$collator_logger->info( "Checking validity of $temp_file" );
 		my $at;
 		my $result = eval { $package_details->check_file( $temp_file, $dpan_dir ) } 
 			or $at = $@;
@@ -503,8 +529,8 @@ sub create_index_files
 			
 			if( defined $error )
 				{
-				unlink $temp_file unless $logger->is_debug;
-				$logger->logdie( "$temp_file has a problem and I have to abort:\n".
+				unlink $temp_file unless $collator_logger->is_debug;
+				$collator_logger->logdie( "$temp_file has a problem and I have to abort:\n".
 					"Deleting file (unless you're debugging)\n" .
 					"$error" 
 					) if defined $error;
@@ -515,18 +541,21 @@ sub create_index_files
 	# if we are this far, 02packages must be okay
 	unless( rename( $temp_file => $packages_file ) )
 		{
-		$logger->fatal( "Could not rename $temp_file => $packages_file" );
+		$collator_logger->fatal( "Could not rename $temp_file => $packages_file" );
 		return;
 		}
 	}
 	
 	# there are no worries about 03modlist because it is just a stub.
 	# there are no real data in it.
-	$logger->info( 'Writing 03modlist.txt.gz' );	
+	$collator_logger->info( 'Writing 03modlist.txt.gz' );	
 	$self->create_modlist( $index_dir );
 
-	$logger->info( 'Creating CHECKSUMS files' );	
+	$collator_logger->info( 'Creating CHECKSUMS files' );	
 	$self->create_checksums( $self->get_note( 'dirs_needing_checksums' ) );
+	
+	$collator_logger->info( 'Updating mailrc and whois files' );	
+	$self->update_whois;	
 	
 	1;
 	}
@@ -649,11 +678,11 @@ sub create_modlist
 	my( $self, $index_dir ) = @_;
 
 	my $module_list_file = catfile( $index_dir, '03modlist.data.gz' );
-	$logger->debug( "modules list file is [$module_list_file]");
+	$collator_logger->debug( "modules list file is [$module_list_file]");
 
 	if( -e $module_list_file )
 		{
-		$logger->debug( "File [$module_list_file] already exists!" );
+		$collator_logger->debug( "File [$module_list_file] already exists!" );
 		return 1;
 		}
 
@@ -675,6 +704,202 @@ HERE
 	close $fh;
 	}
 
+=item update_whois
+
+
+00whois.xml     01mailrc.txt.gz
+
+=cut
+
+sub update_whois
+	{
+	my( $self, $index_dir ) = @_;
+	require MyCPAN::App::DPAN::CPANUtils;
+
+	my $result = MyCPAN::App::DPAN::CPANUtils->pull_latest_whois( 
+		$self->get_config->backpan_dir, $collator_logger 
+		);
+	unless( $result == 2 )
+		{
+		warn "Could not pull whois files from CPAN\n";
+		return;
+		}
+
+	my %authors = $self->get_all_authors;
+
+	$self->update_01mailrc( \%authors );
+
+	$self->update_00whois( \%authors );
+
+	return 1;
+	}
+
+=item get_all_authors
+
+Walk the repository and extract all of the actual authors in the repo.
+
+=cut
+
+sub get_all_authors
+	{
+	my( $self ) = @_;
+	
+	my $author_map = do {
+		my $file = $self->get_config->author_map;
+		if( defined $file )
+			{
+			my $hash;
+			unless( -e $file )
+				{
+				$collator_logger->error( "Author map file [$file] does not exist" );
+				{};
+				}
+			elsif( open my($fh), '<:utf8', $file )
+				{
+				while( <$fh> )
+					{
+					chomp;
+					my( $pause_id, $full_name ) = split /\s+/, $_, 2;
+					$hash->{uc $pause_id} = $full_name || $self->get_config->pause_full_name;
+					}
+				$hash;
+				}
+			else
+				{
+				$collator_logger->error( "Could not open author map file [$file]: $!" );
+				{};
+				}
+			}
+		else { {} }
+		};
+	
+	my $old_cwd = cwd();
+	my $id_dir = catfile( $self->get_config->backpan_dir, 'authors', 'id' );
+	chdir $id_dir;
+	
+	my @authors_in_repo = map { basename( $_ ) } glob( "*/*/*" );
+	chdir $old_cwd;
+	
+	my %authors = map { 
+		$_, 
+		$author_map->{$_} || $self->get_config->pause_full_name 
+		} @authors_in_repo;
+
+	%authors;
+	}
+	
+=item update_01mailrc
+
+Ensure that every PAUSE ID that's in the repository shows up in the 
+F<authors/01mailrc.txt.gz> file. Any new IDs show up with the name
+from the C<pause_full_name> configuration.
+
+TO DO: offer a way to configure multiple new IDs
+
+=cut
+
+sub update_01mailrc
+	{
+	my( $self, $authors ) = @_;
+
+	require IO::Uncompress::Gunzip;
+	require IO::Compress::Gzip;
+
+	my $d = $self->get_config->backpan_dir;
+	my $mailrc_fh = do {
+		my $file = catfile( $d, 'authors', '01mailrc.txt.gz' );
+		IO::Uncompress::Gunzip->new( $file ) or do {	
+			carp "Could not open $file: $IO::Uncompress::Gunzip::GunzipError\n";
+			undef;
+			};
+		};
+	
+	my $new_mailrc_fh = do {
+		my $file = catfile( $d, 'authors', 'new-01mailrc.txt.gz' );
+		my $z = IO::Compress::Gzip->new( $file )
+        	or carp "gzip failed: $IO::Compress::Gzip::GzipError\n";
+        };
+        
+	while( <$mailrc_fh> )
+		{
+		my( $pause_id, $name, $email ) = m/^
+			alias \s+ 
+			(\S+) \s+ 
+			"
+				(.*) \s+ 
+				<
+					(.*?)
+				>
+			"/x;
+			
+		delete $authors->{$pause_id};
+		print { $new_mailrc_fh } $_;
+		}
+
+	foreach my $author ( keys %$authors )
+		{
+		print { $new_mailrc_fh } qq|alias $author "$authors->{$author}"\n|;
+		}
+
+	close $new_mailrc_fh;
+
+	rename 
+		catfile( $d, 'authors', 'new-01mailrc.txt.gz' ),
+		catfile( $d, 'authors', '01mailrc.txt.gz' );
+	}
+
+=item update_00whois
+
+Ensure that every PAUSE ID that's in the repository shows up in the 
+F<authors/00whois.xml> file. Any new IDs show up with the name
+from the C<pause_full_name> configuration.
+
+=cut
+
+sub update_00whois
+	{
+	my( $self, $authors ) = @_;
+
+	my $d = $self->get_config->backpan_dir;
+	
+	my $file = catfile( $d, 'authors', '00whois.xml' );
+	open my( $whois_fh ), "+<:utf8", $file
+		or do {
+			carp "Could not open $file: $!\n";			
+			return;
+			};
+	
+	my $file_end = "</cpan-whois>\n";
+	seek $whois_fh, - length( $file_end ), 2;
+	
+	foreach my $author ( keys %$authors )
+		{
+		my( $name, $email ) = # XXX need to encode
+			map { my $x = $_;
+				$x =~ s/&/&amp;/g;
+				$x =~ s/</&lt;/g;
+				$x =~ s/>/&gt;/g;
+				$x =~ s/"/&quot;/g;
+				$x;
+				} $authors->{$author} =~ m/\s*(.+)\s+<(.+?)>/;
+		
+		print { $whois_fh } <<"AUTHOR";
+ <cpanid>
+  <id>$author</id>
+  <type>author</type>
+  <fullname>$name</fullname>
+  <email>$email</email>
+ </cpanid>
+AUTHOR
+		}
+
+	print { $whois_fh } $file_end;
+	
+	close $whois_fh;
+	
+	1;
+	}
+
 =item create_checksums
 
 Creates the CHECKSUMS file that goes in each author directory in CPAN.
@@ -691,8 +916,8 @@ sub create_checksums
 	foreach my $dir ( @$dirs )
 		{
 		my $rc = eval{ CPAN::Checksums::updatedir( $dir ) };
-			$logger->error( "Couldn't create CHECKSUMS for $dir: $@" ) if $@;
-			$logger->info(
+			$reporter_logger->error( "Couldn't create CHECKSUMS for $dir: $@" ) if $@;
+			$reporter_logger->info(
 				do {
 					  if(    $rc == 1 ) { "Valid CHECKSUMS file is already present" }
 					  elsif( $rc == 2 ) { "Wrote new CHECKSUMS file in $dir" }
@@ -717,7 +942,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009, brian d foy, All Rights Reserved.
+Copyright (c) 2009-2010, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 

@@ -9,7 +9,7 @@ use Cwd qw(cwd);
 use File::Spec::Functions;
 use Log::Log4perl;
 
-$VERSION = '1.28_04';
+$VERSION = '1.28_05';
 
 BEGIN {
 
@@ -21,6 +21,7 @@ my $report_dir = catfile( $cwd, 'indexer_reports' );
 
 my %Defaults = (
 	backpan_dir                 => $cwd,
+	collator_class              => 'MyCPAN::App::DPAN::Reporter::Minimal',
 	dispatcher_class            => 'MyCPAN::Indexer::Dispatcher::Serial',
 	extra_reports_dir           => undef,
 	fresh_start                 => defined $ENV{DPAN_FRESH_START} ? $ENV{DPAN_FRESH_START} : 0,
@@ -28,9 +29,10 @@ my %Defaults = (
 	ignore_missing_dists        => 0,
 	ignore_packages             => 'main MY MM DB bytes DynaLoader',
 	indexer_class               => 'MyCPAN::App::DPAN::Indexer',
-	organize_dists              => 0,
+	organize_dists              => 1,
 	parallel_jobs               => 1,
 	pause_id                    => 'DPAN',
+	pause_full_name             => "DPAN user <CENSORED>",
 	queue_class                 => 'MyCPAN::App::DPAN::SkipQueue',
 	relative_paths_in_report    => 1,
 	reporter_class              => 'MyCPAN::App::DPAN::Reporter::Minimal',
@@ -76,6 +78,7 @@ sub components
 	[ qw( dispatcher MyCPAN::Indexer::Dispatcher::Serial   get_dispatcher ) ],
 	[ qw( reporter   MyCPAN::App::DPAN::Reporter::Minimal  get_reporter   ) ],
 	[ qw( worker     MyCPAN::Indexer::Worker               get_task       ) ],
+	[ qw( collator   MyCPAN::App::DPAN::Reporter::Minimal  get_collator   ) ],
 	[ qw( interface  MyCPAN::Indexer::Interface::Text      do_interface   ) ],
 	)
 	}
@@ -94,25 +97,6 @@ sub fresh_start
 		
 	return 1;
 	}
-	
-sub activate_end
-	{
-	my( $application ) = @_;
-	
-	my $reporter = $application->get_coordinator->get_reporter;
-	
-	if( $reporter->can( 'create_index_files' ) )
-		{
-		$reporter->create_index_files;
-		}
-	else
-		{
-		$logger->warn( 'Reporter class is missing create_index_files!' );
-		}
-
-	$application->SUPER::activate_end;
-	}
-	
 	
 1;
 
@@ -163,7 +147,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2008-2009, brian d foy, All Rights Reserved.
+Copyright (c) 2008-2010, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 
