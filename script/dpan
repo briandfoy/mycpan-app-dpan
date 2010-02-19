@@ -299,6 +299,19 @@ Affected components: all
 
 Config level: MyCPAN
 
+=item merge_dirs
+
+A space separated list of directories containing distributions
+to merge into DPAN. These will go into the directory for 
+C<pause_id>. The files are copied, not renamed, so it works
+across partitions and mount points.
+
+Default: undef
+
+Affected components: Queue
+
+Config level: MyCPAN
+
 =item organize_dists
 
 Take all of the distributions C<dpan> finds and put the into a
