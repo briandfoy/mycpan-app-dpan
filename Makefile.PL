@@ -22,13 +22,13 @@ WriteMakefile(
 		},
 	
 	'PM'           => {
-		'lib/Indexer.pm'     => '$(INST_LIBDIR)/DPAN/Indexer.pm',
-		'lib/DPAN.pm'        => '$(INST_LIBDIR)/DPAN.pm',
-		'lib/Minimal.pm'     => '$(INST_LIBDIR)/DPAN/Reporter/Minimal.pm',
-		'lib/AsYAML.pm'      => '$(INST_LIBDIR)/DPAN/Reporter/AsYAML.pm',
-		'lib/SkipQueue.pm'   => '$(INST_LIBDIR)/DPAN/SkipQueue.pm',
-		'lib/CPANUtils.pm'   => '$(INST_LIBDIR)/DPAN/CPANUtils.pm',
-		'lib/NullCleanup.pm' => '$(INST_LIBDIR)/DPAN/NullCleanup.pm',
+		'lib/Indexer.pm'        => '$(INST_LIBDIR)/DPAN/Indexer.pm',
+		'lib/DPAN.pm'           => '$(INST_LIBDIR)/DPAN.pm',
+		'lib/Minimal.pm'        => '$(INST_LIBDIR)/DPAN/Reporter/Minimal.pm',
+		'lib/AsYAML.pm'         => '$(INST_LIBDIR)/DPAN/Reporter/AsYAML.pm',
+		'lib/SkipQueue.pm'      => '$(INST_LIBDIR)/DPAN/SkipQueue.pm',
+		'lib/CPANUtils.pm'      => '$(INST_LIBDIR)/DPAN/CPANUtils.pm',
+		'lib/NullPostFlight.pm' => '$(INST_LIBDIR)/DPAN/NullPostFlight.pm',
 		},
 
 

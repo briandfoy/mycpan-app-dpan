@@ -126,7 +126,7 @@ incomplete.
 =================================================
 HERE
 
-	print <<"HERE" if $coordinator->get_note( 'cleanup_failure' );
+	print <<"HERE" if $coordinator->get_note( 'postflight_failure' );
 =================================================
 I wasn't able to complete the cleanup step.
 DPAN might be okay, but your post processing
@@ -146,16 +146,16 @@ sub _handle_cleanup
 	my $config = $application->get_coordinator->get_config;
 
 	# if it's not in the config then we're done already.
-	return 1 unless $config->exists( 'cleanup_class' );
+	return 1 unless $config->exists( 'postflight_class' );
 
-	my $class = $config->get( 'cleanup_class' );
+	my $class = $config->get( 'postflight_class' );
 
-	if( $application->_check_cleanup_class( $class ) )
+	if( $application->_check_postflight_class( $class ) )
 		{
 		eval { $class->run( $application ) } or do {
 			my $at = $@;
-			$logger->error( "cleanup class [$class] complained: $at" );
-			$application->set_note( 'cleanup_failure', $at );
+			$logger->error( "postflight class [$class] complained: $at" );
+			$application->set_note( 'postflight_failure', $at );
 			return;
 			};
 		}
@@ -163,7 +163,7 @@ sub _handle_cleanup
 	return 1;
 	}
 
-sub _check_cleanup_class
+sub _check_postflight_class
 	{
 	my( $application, $class ) = @_;
 
@@ -173,15 +173,15 @@ sub _check_cleanup_class
 			{
 			my $error = "Class [$class] does not claim to have a run() method";
 			$logger->error( $error );
-			$application->set_note( 'cleanup_class_failure', $error );
+			$application->set_note( 'postflight_class_failure', $error );
 			return;
 			}
 		}
 	else
 		{
 		my $at = $@;
-		$logger->error( "Could not load cleanup class [$class]: $at" );
-		$application->set_note( 'cleanup_class_failure', $at );
+		$logger->error( "Could not load postflight class [$class]: $at" );
+		$application->set_note( 'postflight_class_failure', $at );
 		return;
 		}
 
