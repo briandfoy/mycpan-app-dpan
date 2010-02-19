@@ -13,3 +13,4 @@ test-corpus/authors/id/B/BD/BDFOY/CHECKSUMS
 config_test.pl
 test-corpus/authors/00whois.xml
 test-corpus/authors/01mailrc.txt.gz
+*.bak

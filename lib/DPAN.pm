@@ -68,14 +68,14 @@ sub adjust_config
 	# the Indexer stuff expects the directory in backpan_dir
 	if( $config->exists( 'dpan_dir') )
 		{
-		$config->set( 
-			'backpan_dir', 
+		$config->set(
+			'backpan_dir',
 			$config->get( 'dpan_dir' )
 			);
 		}
 
-	
-	
+
+
 	$application->SUPER::adjust_config;
 	}
 
@@ -100,21 +100,92 @@ sub activate_end
 	{
 	my( $application ) = @_;
 
-	print <<"HERE";
+	my $coordinator = $application->get_coordinator;
+
+	$application->_handle_cleanup;
+
+	print <<"HERE" unless $coordinator->get_note( 'epic_fail' );
 =================================================
 Ensure you reload your indices in your CPAN tool!
 
 For CPAN.pm, use:
 
 	cpan> reload index
-    
+
 For CPANPLUS, use
 
 	CPAN Terminal> x
 =================================================
 HERE
 
+	print <<"HERE" if $coordinator->get_note( 'epic_fail' );
+=================================================
+Something really bad happened and I couldn't
+finish creating the index files. The DPAN is
+incomplete.
+=================================================
+HERE
+
+	print <<"HERE" if $coordinator->get_note( 'cleanup_failure' );
+=================================================
+I wasn't able to complete the cleanup step.
+DPAN might be okay, but your post processing
+may have failed.
+=================================================
+HERE
+
 	$application->SUPER::activate_end;
+	}
+
+sub _handle_cleanup
+	{
+	my( $application ) = @_;
+
+	$logger->info( "Handling cleanup" );
+
+	my $config = $application->get_coordinator->get_config;
+
+	# if it's not in the config then we're done already.
+	return 1 unless $config->exists( 'cleanup_class' );
+
+	my $class = $config->get( 'cleanup_class' );
+
+	if( $application->_check_cleanup_class( $class ) )
+		{
+		eval { $class->run( $application ) } or do {
+			my $at = $@;
+			$logger->error( "cleanup class [$class] complained: $at" );
+			$application->set_note( 'cleanup_failure', $at );
+			return;
+			};
+		}
+
+	return 1;
+	}
+
+sub _check_cleanup_class
+	{
+	my( $application, $class ) = @_;
+
+	if( eval( "require $class; 1" ) )
+		{
+		unless( eval { $class->can('run') } )
+			{
+			my $error = "Class [$class] does not claim to have a run() method";
+			$logger->error( $error );
+			$application->set_note( 'cleanup_class_failure', $error );
+			return;
+			}
+		}
+	else
+		{
+		my $at = $@;
+		$logger->error( "Could not load cleanup class [$class]: $at" );
+		$application->set_note( 'cleanup_class_failure', $at );
+		return;
+		}
+
+	return 1;
 	}
 
 sub components

@@ -133,6 +133,21 @@ Affected components: Collator
 
 Config level: DPAN
 
+=item cleanup_class
+
+If defined, after C<dpan> has finished all of its work and is ready to
+exit, it will try to load this class and execute its C<run()> method.
+It passes C<run()> the application object, so you have full access to
+everything. See C<MyCPAN::App::DPAN::NullCleanup> for an example. To use
+the application object, you need to know a little about the guts of 
+C<MyCPAN::Indexer>.
+
+Default: undef
+
+Affected components: none
+
+Config level: DPAN
+
 =item collator_class
 
 The Perl class to use as the Dispatcher component. See

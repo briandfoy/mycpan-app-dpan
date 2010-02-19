@@ -126,7 +126,7 @@ sub get_reporter
 			}
 		else
 			{
-			$self->_write_error_file( $info );			
+			$self->_write_error_file( $info );
 			}
 		1;
 		};
@@ -166,10 +166,10 @@ sub _write_error_file
 	open my($fh), ">:utf8", $out_path or
 	$reporter_logger->fatal( "Could not open $out_path to record error report: $!" );
 
-	print $fh "ERRORS:\n", 
+	print $fh "ERRORS:\n",
 		map { sprintf "%s: %s\n", $_, $info->{run_info}{$_} || '' }
 		qw( error fatal_error extraction_error );
-		
+
 	use Data::Dumper;
 	print $fh '-' x 73, "\n";
 	print $fh Dumper( $info );
@@ -198,7 +198,12 @@ sub get_collator
 
 	my $collator = sub {
 		$self->final_words;
-		eval { $self->create_index_files } or return;
+		unless( eval { $self->create_index_files } )
+			{
+			$self->set_note( 'epic_fail', $@ );
+			return;
+			}
+		return 1;
 		};
 
 	$self->set_note( $_[0]->collator_type, $collator );
@@ -755,16 +760,16 @@ sub update_whois
 	require MyCPAN::App::DPAN::CPANUtils;
 
 	my $success = 0;
-	
-	# no matter the situation, start over. I don't like this situation 
+
+	# no matter the situation, start over. I don't like this situation
 	# so much, but it's more expedient then parsing the xml file to look
 	# for missing users
 	unlink map { my $f = catfile(
 		$self->get_config->dpan_dir,
 		'authors',
 		MyCPAN::App::DPAN::CPANUtils->$_()
-		); 
-		print "Deleting $f\n";
+		);
+
 		$f;
 		} qw( mailrc_filename whois_filename );
 

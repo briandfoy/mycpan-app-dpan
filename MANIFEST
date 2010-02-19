@@ -4,7 +4,9 @@ lib/CPANUtils.pm
 lib/DPAN.pm
 lib/Indexer.pm
 lib/Minimal.pm
+lib/NullCleanup.pm
 lib/SkipQueue.pm
+lib/UserManual.pm
 LICENSE
 Makefile.PL
 MANIFEST
