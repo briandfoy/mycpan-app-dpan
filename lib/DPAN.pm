@@ -12,8 +12,10 @@ use Log::Log4perl;
 $VERSION = '1.28_07';
 
 BEGIN {
+use vars qw( $Starting_dir );
+$Starting_dir = cwd();
 
-$SIG{INT} = sub { exit };
+$SIG{INT} = sub { print "Caught SIGINT\n"; chdir $Starting_dir; exit() };
 
 my $cwd = cwd();
 
