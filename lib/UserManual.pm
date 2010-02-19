@@ -12,7 +12,23 @@ MyCPAN::App::DPAN::UserManual - How to manage a DPAN
 
 =head1 DESCRIPTION
 
+=head2 Deciding on which modules to add
 
+=head2 Running dpan for the first time
+
+=head2 Dealing with indexing failures
+
+=head2 Adding local modules
+
+=head1 USE CASES
+
+=head2
+
+=head1 Keeping DPAN in source control
+
+=head1 TROUBLESHOOTING
+
+=head1 Indexing errors
 
 =head1 SEE ALSO
 
