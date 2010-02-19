@@ -103,7 +103,7 @@ sub activate_end
 
 	$application->_handle_postflight;
 
-	print <<"HERE" unless $coordinator->get_note( 'epic_fail' );
+	print <<"HERE" unless( $coordinator->get_note( 'epic_fail' ) || $coordinator->get_note( 'postflight_fail' ) );
 =================================================
 Ensure you reload your indices in your CPAN tool!
 
