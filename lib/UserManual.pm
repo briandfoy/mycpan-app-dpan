@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 
 use vars qw($VERSION);
-$VERSION = '1.28_09';
+$VERSION = '1.28_10';
 
 =head1 NAME
 
@@ -25,6 +25,8 @@ MyCPAN::App::DPAN::UserManual - How to manage a DPAN
 =head2
 
 =head1 Keeping DPAN in source control
+
+=head1 LOGGING
 
 =head1 TROUBLESHOOTING
 

@@ -9,7 +9,7 @@ use Cwd qw(cwd);
 use File::Spec::Functions;
 use Log::Log4perl;
 
-$VERSION = '1.28_09';
+$VERSION = '1.28_10';
 
 BEGIN {
 use vars qw( $Starting_dir );
@@ -74,8 +74,6 @@ sub adjust_config
 			);
 		}
 
-
-
 	$application->SUPER::adjust_config;
 	}
 
@@ -101,8 +99,9 @@ sub activate_end
 	my( $application ) = @_;
 
 	my $coordinator = $application->get_coordinator;
+	$application->cleanup;
 
-	$application->_handle_cleanup;
+	$application->_handle_postflight;
 
 	print <<"HERE" unless $coordinator->get_note( 'epic_fail' );
 =================================================
@@ -128,16 +127,16 @@ HERE
 
 	print <<"HERE" if $coordinator->get_note( 'postflight_failure' );
 =================================================
-I wasn't able to complete the cleanup step.
+I wasn't able to complete the postflight step.
 DPAN might be okay, but your post processing
 may have failed.
 =================================================
 HERE
 
-	$application->SUPER::activate_end;
+	$application->_exit;
 	}
 
-sub _handle_cleanup
+sub _handle_postflight
 	{
 	my( $application ) = @_;
 
@@ -155,7 +154,7 @@ sub _handle_cleanup
 		eval { $class->run( $application ) } or do {
 			my $at = $@;
 			$logger->error( "postflight class [$class] complained: $at" );
-			$application->set_note( 'postflight_failure', $at );
+			$application->get_coordinator->set_note( 'postflight_failure', $at );
 			return;
 			};
 		}
@@ -173,7 +172,7 @@ sub _check_postflight_class
 			{
 			my $error = "Class [$class] does not claim to have a run() method";
 			$logger->error( $error );
-			$application->set_note( 'postflight_class_failure', $error );
+			$application->get_coordinator->set_note( 'postflight_class_failure', $error );
 			return;
 			}
 		}
@@ -181,7 +180,7 @@ sub _check_postflight_class
 		{
 		my $at = $@;
 		$logger->error( "Could not load postflight class [$class]: $at" );
-		$application->set_note( 'postflight_class_failure', $at );
+		$application->get_coordinator->set_note( 'postflight_class_failure', $at );
 		return;
 		}
 

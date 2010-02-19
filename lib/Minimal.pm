@@ -4,7 +4,7 @@ use warnings;
 
 use base qw(MyCPAN::Indexer::Reporter::Base);
 use vars qw($VERSION $reporter_logger $collator_logger);
-$VERSION = '1.28_09';
+$VERSION = '1.28_10';
 
 use Carp;
 use Cwd;
@@ -86,6 +86,7 @@ sub get_reporter
 
 			unless( defined $module->{primary_package} )
 				{
+				no warnings 'uninitialized';
 				$reporter_logger->warn( "No primary package for $module->{name}" );
 				next MODULE;
 				}
@@ -327,6 +328,7 @@ sub final_words
 			# in 02packages.details.txt
 			( my $path = $dist_file ) =~ s/.*authors.id.//g;
 
+			no warnings 'uninitialized';
 			$path =~ s|\\+|/|g; # no windows paths.
 
 			if( $self->skip_package( $package ) )
@@ -335,7 +337,8 @@ sub final_words
 				next PACKAGE;
 				}
 
-			push @packages, [ $package, $version, $path ];
+			push @packages, [ $package, $version, $path ] 
+				if( $package and $version and $path );
 			}
 
 		# Some distros declare the same package in multiple files. We

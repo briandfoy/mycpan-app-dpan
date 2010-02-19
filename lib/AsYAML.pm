@@ -13,10 +13,9 @@ use base qw(MyCPAN::Indexer::Reporter::AsYAML);
 use Cwd qw(cwd);
 use File::Basename qw(dirname);
 use File::Path qw(mkpath);
-use File::Temp qw(tempdir);
 use File::Spec::Functions qw(catfile rel2abs);
 
-$VERSION = '1.28_09';
+$VERSION = '1.28_10';
 
 =head1 NAME
 

@@ -6,6 +6,7 @@ lib/Indexer.pm
 lib/Minimal.pm
 lib/NullPostFlight.pm
 lib/SkipQueue.pm
+lib/SVNPostFlight.pm
 lib/UserManual.pm
 LICENSE
 Makefile.PL
