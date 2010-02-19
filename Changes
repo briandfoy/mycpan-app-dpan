@@ -1,5 +1,12 @@
 # Changes for DarkPAN::Creator
 
+1.28_07 - Thu Feb 18 17:42:50 2010
+	* it's now dpan_dir, not backpan_dir. The old configuration still 
+	works though.
+	* other directories with dists to pull in go into merge_dirs
+	* Fixed problem with adding X-SVN header to 02packages.
+	
+	
 1.28_06 - Thu Feb 18 13:55:17 2010
 	* The error reports from Minimal.pm now dump all the info the indexer
 	collected, and puts the error messages at the top of the error report.
