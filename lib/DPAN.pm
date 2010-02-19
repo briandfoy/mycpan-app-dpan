@@ -9,7 +9,7 @@ use Cwd qw(cwd);
 use File::Spec::Functions;
 use Log::Log4perl;
 
-$VERSION = '1.28_08';
+$VERSION = '1.28_09';
 
 BEGIN {
 use vars qw( $Starting_dir );
