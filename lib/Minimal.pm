@@ -168,7 +168,7 @@ sub _write_error_file
 
 	print $fh "ERRORS:\n", 
 		map { sprintf "%s: %s\n", $_, $info->{run_info}{$_} || '' }
-		qw( error fatal_error );
+		qw( error fatal_error extraction_error );
 		
 	use Data::Dumper;
 	print $fh '-' x 73, "\n";
@@ -198,7 +198,7 @@ sub get_collator
 
 	my $collator = sub {
 		$self->final_words;
-		$self->create_index_files;
+		eval { $self->create_index_files } or return;
 		};
 
 	$self->set_note( $_[0]->collator_type, $collator );
@@ -240,6 +240,12 @@ sub final_words
 	FILE: foreach my $file ( $self->get_latest_module_reports )
 		{
 		$collator_logger->debug( "Processing output file $file" );
+
+		unless( -e $file )
+			{
+			$collator_logger->debug( "No success report for [$file]" );
+			next FILE;
+			}
 
 		open my($fh), '<:utf8', $file or do {
 			$collator_logger->error( "Could not open [$file]: $!" );
@@ -425,10 +431,7 @@ sub _get_report_names_by_dist_names
 	my $queuer = $self->get_coordinator->get_component( 'queue' );
 
 	# these are the directories to index
-	my @dirs = do {
-		my $item = $self->get_config->dpan_dir || '';
-		split /\x00/, $item;
-		};
+	my @dirs = $self->get_config->dpan_dir;
 	$reporter_logger->debug( "Queue directories are [@dirs]" );
 
 	# This is the list of distributions in the indexed directories
@@ -752,6 +755,19 @@ sub update_whois
 	require MyCPAN::App::DPAN::CPANUtils;
 
 	my $success = 0;
+	
+	# no matter the situation, start over. I don't like this situation 
+	# so much, but it's more expedient then parsing the xml file to look
+	# for missing users
+	unlink map { my $f = catfile(
+		$self->get_config->dpan_dir,
+		'authors',
+		MyCPAN::App::DPAN::CPANUtils->$_()
+		); 
+		print "Deleting $f\n";
+		$f;
+		} qw( mailrc_filename whois_filename );
+
 	if( $self->get_config->use_real_whois )
 		{
 		my $result = MyCPAN::App::DPAN::CPANUtils->pull_latest_whois(
