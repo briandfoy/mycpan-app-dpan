@@ -133,18 +133,6 @@ Affected components: Collator
 
 Config level: DPAN
 
-=item backpan_dir
-
-The directory that has the distributions to archive. Remember, this is a
-subclass of MyCPAN::Indexer::App::BackPAN, so don't worry too much about
-the directive name.
-
-Default: the current working directory
-
-Affected components: all of them
-
-Config level: MyCPAN
-
 =item collator_class
 
 The Perl class to use as the Dispatcher component. See
@@ -171,6 +159,17 @@ C<MyCPAN::Indexer::Tutorial> for details on components.
 Default: MyCPAN::Indexer::Dispatch::Serial
 
 Config level: MyCPAN
+
+=item dpan_dir
+
+The directory where C<dpan> will create the DPAN. It takes a single
+directory. 
+
+Default: the current working directory
+
+Affected components: all of them
+
+Config level: DPAN
 
 =item error_report_subdir
 
@@ -304,7 +303,7 @@ Config level: MyCPAN
 
 Take all of the distributions C<dpan> finds and put the into a
 PAUSE-like structure under F<authors/id/D/DP/DPAN> under
-C<backpan_dir>. You can change the author ID with the C<pause_id>
+C<dpan_dir>. You can change the author ID with the C<pause_id>
 directive.
 
 Default: 0

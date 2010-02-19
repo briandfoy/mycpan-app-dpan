@@ -21,7 +21,8 @@ my $report_dir = catfile( $cwd, 'indexer_reports' );
 
 my %Defaults = (
     author_map                  => undef,
-	backpan_dir                 => $cwd,
+	dpan_dir                    => $cwd,
+	merge_dirs                  => undef,
 	collator_class              => 'MyCPAN::App::DPAN::Reporter::Minimal',
 	dispatcher_class            => 'MyCPAN::Indexer::Dispatcher::Serial',
 	extra_reports_dir           => undef,
@@ -54,6 +55,32 @@ sub default
 	$Defaults{ $_[1] }
 		:
 	$_[0]->SUPER::default( $_[1] );
+	}
+
+sub adjust_config
+	{
+	my( $application ) = @_;
+
+	my $config = $coordinator->get_config;
+
+	if( $config->exists( 'merge_dirs' ) )
+		{
+		my @dirs = split /(?<!\\) /, $config->get( 'merge_dirs' );
+		
+		}
+
+	# the Indexer stuff expects the directory in backpan_dir
+	if( $config->exists( 'dpan_dir') )
+		{
+		$config->set( 
+			'backpan_dir', 
+			$config->get( 'dpan_dir' )
+			);
+		}
+
+	
+	
+	$application->SUPER::adjust_config;
 	}
 
 $logger = Log::Log4perl->get_logger( 'backpan_indexer' );

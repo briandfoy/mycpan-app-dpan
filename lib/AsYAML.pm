@@ -130,9 +130,8 @@ sub final_words
 		# some files may be left over from earlier runs, even though the
 		# original distribution has disappeared. Only index distributions
 		# that are still there
-		#my @backpan_dirs = @{ $Notes->{config}->backpan_dir };
 		# check that dist file is in one of these directories
-		next unless -e $dist_file; # && $dist_file =~ m/^\Q$backpan_dir/;
+		next unless -e $dist_file;
 
 		my $dist_dir = dirname( $dist_file );
 
@@ -204,7 +203,7 @@ sub _create_index_files
 	my( $self, $package_details, $dirs_needing_checksums ) = @_;
 
 	my $index_dir = do {
-		my $d = $self->get_config->backpan_dir;
+		my $d = $self->get_config->dpan_dir;
 
 		# there might be more than one if we pull from multiple sources
 		# so make the index in the first one.

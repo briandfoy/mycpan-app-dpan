@@ -49,7 +49,7 @@ to filter the list of files it returns.
 
 C<get_queue> sets the key C<queue> in C<$Notes> hash reference. It
 finds all of the tarballs or zip archives in under the directories
-named in C<backpan_dir> in the configuration.
+named in C<dpan_dir> and C<merge_dirs> in the configuration.
 
 It specifically skips files that end in C<.txt.gz> or C<.data.gz>
 since PAUSE creates those meta files near the actual module

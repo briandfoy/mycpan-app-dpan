@@ -61,7 +61,7 @@ sub get_reporter
 	my( $self ) = @_;
 
 	# why is this here?
-	my $base_dir = $self->get_config->backpan_dir;
+	my $base_dir = $self->get_config->dpan_dir;
 
 	if( $self->get_config->organize_dists )
 		{
@@ -267,32 +267,32 @@ sub final_words
 
 			unless( file_name_is_absolute( $full_path ) )
 				{
-				my $backpan_dir = ($self->get_config->backpan_dir)[0];
+				my $dpan_dir = $self->get_config->dpan_dir;
 
 				# if we're using organize_dists, we created an authors/id
-				# directory under backpan_dir, so we have to put those
+				# directory under dpan_dir, so we have to put those
 				# three pieces together
 				if( $self->get_config->organize_dists )
 					{
 					$full_path = catfile(
-						$backpan_dir,
+						$dpan_dir,
 						qw(authors id),
 						$dist_file
 						) ;
 					}
-				# otherwise, every path should be relative to $backpan_dir
-				# I'm not sure that is actually true though if backpan_dir
+				# otherwise, every path should be relative to $dpan_dir
+				# I'm not sure that is actually true though if dpan_dir
 				# is the current directory, and there is an authors/id
 				# under it
 				elsif( $self->get_config->relative_paths_in_report )
 					{
 					my $f1 = catfile(
-						$backpan_dir,
+						$dpan_dir,
 						$dist_file
 						);
 
 					my $f2 = catfile(
-						$backpan_dir,
+						$dpan_dir,
 						qw(authors id),
 						$dist_file
 						);
@@ -307,7 +307,7 @@ sub final_words
 			$collator_logger->debug( "full_path is now [$full_path]" );
 			}
 
-			next PACKAGE unless defined $full_path && -e $full_path; # && $dist_file =~ m/^\Q$backpan_dir/;
+			next PACKAGE unless defined $full_path && -e $full_path;
 			my $dist_dir = dirname( $full_path );
 			$dirs_needing_checksums{ $dist_dir }++;
 
@@ -364,7 +364,7 @@ sub final_words
 
 Return the list of interesting reports for this indexing run.  This
 re-runs the queuer to get the final list of distributions in
-backpan_dir (some things might have moved around), gets the reports for
+dpan_dir (some things might have moved around), gets the reports for
 
 =cut
 
@@ -426,7 +426,7 @@ sub _get_report_names_by_dist_names
 
 	# these are the directories to index
 	my @dirs = do {
-		my $item = $self->get_config->backpan_dir || '';
+		my $item = $self->get_config->dpan_dir || '';
 		split /\x00/, $item;
 		};
 	$reporter_logger->debug( "Queue directories are [@dirs]" );
@@ -490,7 +490,7 @@ sub create_index_files
 	{
 	my( $self ) = @_;
 	my $index_dir = do {
-		my $d = $self->get_config->backpan_dir;
+		my $d = $self->get_config->dpan_dir;
 
 		# there might be more than one if we pull from multiple sources
 		# so make the index in the first one.
@@ -755,7 +755,7 @@ sub update_whois
 	if( $self->get_config->use_real_whois )
 		{
 		my $result = MyCPAN::App::DPAN::CPANUtils->pull_latest_whois(
-			$self->get_config->backpan_dir, $collator_logger
+			$self->get_config->dpan_dir, $collator_logger
 			);
 		if( $result == 2 )
 			{
@@ -772,7 +772,7 @@ sub update_whois
 	unless( $success )
 		{
 		MyCPAN::App::DPAN::CPANUtils->make_fake_whois(
-			$self->get_config->backpan_dir, $collator_logger
+			$self->get_config->dpan_dir, $collator_logger
 			);
 		}
 
@@ -825,7 +825,7 @@ sub get_all_authors
 		};
 
 	my $old_cwd = cwd();
-	my $id_dir = catfile( $self->get_config->backpan_dir, 'authors', 'id' );
+	my $id_dir = catfile( $self->get_config->dpan_dir, 'authors', 'id' );
 	chdir $id_dir;
 
 	my @authors_in_repo = map { basename( $_ ) } glob( "*/*/*" );
@@ -856,7 +856,7 @@ sub update_01mailrc
 	require IO::Uncompress::Gunzip;
 	require IO::Compress::Gzip;
 
-	my $d = $self->get_config->backpan_dir;
+	my $d = $self->get_config->dpan_dir;
 	my $mailrc_fh = do {
 		my $file = catfile( $d, 'authors', '01mailrc.txt.gz' );
 		IO::Uncompress::Gunzip->new( $file ) or do {
@@ -911,7 +911,7 @@ sub update_00whois
 	{
 	my( $self, $authors ) = @_;
 
-	my $d = $self->get_config->backpan_dir;
+	my $d = $self->get_config->dpan_dir;
 
 	my $file = catfile( $d, 'authors', '00whois.xml' );
 	open my( $whois_fh ), "+<:utf8", $file
