@@ -31,15 +31,16 @@ C<dpan>'s normal processing. The class only needs to provide a C<run>
 method, which is automatically called by C<dpan>. Be careful that you
 don't import anything called C<run> (looking at you, C<IPC::Run>)!
 
-This example invokes an svn update, checks the svn status to see
-what's changes, and creates a list of svn commands to run. It adds any
-new files it finds and removes any missing miles. If it detects a
-conflict, it stops the process before anything happens.
+This example checks that the DPAN directory is under source control,
+invokes an svn update, checks the svn status to see what's changes,
+and creates a list of svn commands to run. It adds any new files it
+finds and removes any missing miles. If it detects a conflict, it
+stops the process before anything happens.
 
 If you've set the C<postflight_dry_run> configuration variable, this
 class merely prints the svn adds and removes that it would run, but it
-doesn't actually run them. That gives you a chance to see what it would
-do without doing it.
+doesn't actually run them. That gives you a chance to see what it
+would do without doing it.
 
 At the end of the run, this prints the URL you need to use to access the
 repository.
@@ -135,6 +136,18 @@ sub run
 	# The Coordinator knows how to get the configuration object
 	my $config      = $coordinator->get_config;
 
+	# You are probably already in this directory, but it's nice to be
+	# sure.
+	my $dpan_dir = $config->get( 'dpan_dir' );
+	chdir $dpan_dir;
+	
+	# If there isn't a .svn directory, there's not much that we can do
+	unless( -e '.svn' )
+		{
+		$logger->logdie( "There isn't an .svn directory in [$dpan_dir]! I can't continue!" );
+		return;
+		}
+		
 	# Construct an object, although it's not necessary. We're going to
 	# use it to adjust some configuration, etc, that we can pass around.
 	# In this case, we just transfer the postflight_dry_run value.
