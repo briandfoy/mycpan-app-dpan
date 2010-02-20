@@ -505,7 +505,7 @@ sub create_index_files
 
 		# there might be more than one if we pull from multiple sources
 		# so make the index in the first one.
-		my $abs = rel2abs( ref $d ? $d->[0] : $d );
+		my $abs = rel2abs( $d );
 		$abs =~ s/authors.id.*//;
 		catfile( $abs, 'modules' );
 		};
