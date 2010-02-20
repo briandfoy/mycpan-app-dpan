@@ -337,7 +337,7 @@ sub final_words
 				next PACKAGE;
 				}
 
-			push @packages, [ $package, $version, $path ] 
+			push @packages, [ $package, $version, $path ]
 				if( $package and $version and $path );
 			}
 
@@ -1004,6 +1004,8 @@ sub create_checksums
 =back
 
 =head1 TO DO
+
+How much time do you have?
 
 =head1 SOURCE AVAILABILITY
 

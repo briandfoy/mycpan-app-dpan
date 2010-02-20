@@ -18,13 +18,11 @@ MyCPAN::App::DPAN::UserManual - How to manage a DPAN
 
 =head2 Dealing with indexing failures
 
-=head2 Adding local modules
+=head2 Adding local modulessaved
 
 =head1 USE CASES
 
-=head2
-
-=head1 Keeping DPAN in source control
+=head2 Keeping DPAN in source control
 
 =head1 LOGGING
 
@@ -40,7 +38,7 @@ MyCPAN::Indexer::Tutorial
 
 This code is in Github:
 
-	git://github.com/briandfoy/mycpan-indexer.git
+	git://github.com/briandfoy/mycpan--app--indexer.git
 
 =head1 AUTHOR
 

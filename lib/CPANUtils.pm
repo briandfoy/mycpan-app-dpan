@@ -217,7 +217,7 @@ sub _shove_in_file
 	print $fh $content;
 	}
 
-=item 01mailrc_filename
+=item mailrc_filename
 
 Returns the filename for F<01mailrc.txt.gz>.
 
@@ -225,7 +225,7 @@ Returns the filename for F<01mailrc.txt.gz>.
 
 sub mailrc_filename { '01mailrc.txt.gz' }
 
-=item 00whois_filename
+=item whois_filename
 
 Returns the filename for F<00whois.xml>.
 
