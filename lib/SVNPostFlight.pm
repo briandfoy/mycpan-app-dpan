@@ -131,7 +131,7 @@ sub run
 	# The coordinator object has references to all of the other components
 	# and the application notes. See MyCPAN::Indexer::Tutorial and
 	# MyCPAN::Indexer::Coordinator for more information
-	my $coordinator = $application->get_coordinator
+	my $coordinator = $application->get_coordinator;
 
 	# The Coordinator knows how to get the configuration object
 	my $config      = $coordinator->get_config;

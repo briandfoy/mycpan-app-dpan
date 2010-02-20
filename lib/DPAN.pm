@@ -11,6 +11,46 @@ use Log::Log4perl;
 
 $VERSION = '1.28_10';
 
+=head1 NAME
+
+MyCPAN::App::DPAN - Create a CPAN-like structure out of some dists
+
+=head1 SYNOPSIS
+
+	use MyCPAN::App::DPAN;
+
+	my $application = MyCPAN::App::DPAN->activate( @ARGV );
+
+	# do some other stuff, anything that you like
+
+	$application->activate_end;
+
+=head1 DESCRIPTION
+
+This module ties together all the bits to let the C<dpan> do its work. It
+overrides the defaults in C<MyCPAN::App::BackPAN::Indexer> to provide the
+right components.
+
+The work happens in two steps. When you call C<activate>, the program goes
+through all of the steps to examin each of the module distributions. It creates
+a report for each distribution, then stops. This pause right after the
+examination gives you the chance to do something right before the program
+creates the PAUSE index files. The examination might take several minutes
+(or even hours depending on how much you want to index), so you have a chance
+to check the state of the world before the next step.
+
+When you call C<activate_end>, the program takes the results from the
+previous step and creates the PAUSE index files in the F<modules> directory.
+This step should be very quick since all of the information is ready-to-go.
+
+=cut
+
+=head1 METHODS
+
+=over 4
+
+=cut
+
 BEGIN {
 use vars qw( $Starting_dir );
 $Starting_dir = cwd();
@@ -43,11 +83,23 @@ my %Defaults = (
 	use_real_whois              => 0,
 	);
 
+=item default_keys
+
+Returns the list of default configuration directive.
+
+=cut
+
 sub default_keys
 	{
 	my %Seen;
 	grep { ! $Seen{$_}++ } keys %Defaults, $_[0]->SUPER::default_keys;
 	}
+
+=item default( DIRECTIVE )
+
+Returns the configuration value for DIRECTIVE.
+
+=cut
 
 sub default
 	{
@@ -57,6 +109,13 @@ sub default
 		:
 	$_[0]->SUPER::default( $_[1] );
 	}
+
+=item default( DIRECTIVE )
+
+Adjusts the configuration to set various internal values. You don't need
+to call this yourself.
+
+=cut
 
 sub adjust_config
 	{
@@ -80,6 +139,13 @@ sub adjust_config
 $logger = Log::Log4perl->get_logger( 'backpan_indexer' );
 }
 
+=item default( DIRECTIVE )
+
+Returns the list of methods to invoke from C<activate>. By overriding this
+method you can change the DPAN process.
+
+=cut
+
 sub activate_steps
 	{
 	qw(
@@ -94,6 +160,14 @@ sub activate_steps
 	);
 	}
 
+=item default( DIRECTIVE )
+
+Runs right before C<dpan> is about to exit. It calls the postflight
+handler if one if configured. It prints a short summary message to
+standard output.
+
+=cut
+
 sub activate_end
 	{
 	my( $application ) = @_;
@@ -103,7 +177,7 @@ sub activate_end
 
 	$application->_handle_postflight;
 
-	print <<"HERE" unless( $coordinator->get_note( 'epic_fail' ) || $coordinator->get_note( 'postflight_fail' ) );
+	print <<"HERE" unless( $coordinator->get_note( 'epic_fail' ) || $coordinator->get_note( 'postflight_failure' ) );
 =================================================
 Ensure you reload your indices in your CPAN tool!
 
@@ -187,6 +261,12 @@ sub _check_postflight_class
 	return 1;
 	}
 
+=item components
+
+Returns the list of components to load and the implementing classes.
+
+=cut
+
 sub components
 	{
 	(
@@ -195,60 +275,39 @@ sub components
 	[ qw( reporter   MyCPAN::App::DPAN::Reporter::Minimal  get_reporter   ) ],
 	[ qw( worker     MyCPAN::Indexer::Worker               get_task       ) ],
 	[ qw( collator   MyCPAN::App::DPAN::Reporter::Minimal  get_collator   ) ],
+# this has to be last because it kicks off everything
 	[ qw( interface  MyCPAN::Indexer::Interface::Text      do_interface   ) ],
 	)
 	}
+
+=item fresh_start
+
+If C<fresh_start> is set, this method deletes the reports in the 
+report directory, leaving the directories in place.
+
+=cut
 
 sub fresh_start
 	{
 	my( $application ) = @_;
 
-	return unless $application->get_coordinator->get_config->fresh_start;
-
-	my $indexer_reports_dir = $application->get_coordinator->get_config->report_dir;
-
+	my $config = $application->get_coordinator->get_config;
+	
+	return unless $config->get( 'fresh_start' );
+	
 	require File::Path;
-
-	File::Path::remove_tree( $indexer_reports_dir );
+	foreach my $dir ( map { my $m = "${_}_report_subdir"; $config->$m() } qw(error success) )
+		{
+		$logger->info( "Cleaning report directory [$dir]" );
+		unlink glob( catfile( $dir, '*' ) );
+		}
 
 	return 1;
 	}
 
 1;
 
-=head1 NAME
-
-MyCPAN::App::DPAN - Create a CPAN-like structure out of some dists
-
-=head1 SYNOPSIS
-
-	use MyCPAN::App::DPAN;
-
-	my $application = MyCPAN::App::DPAN->activate( @ARGV );
-
-	# do some other stuff, anything that you like
-
-	$application->activate_end;
-
-=head1 DESCRIPTION
-
-This module ties together all the bits to let the C<dpan> do its work. It
-overrides the defaults in C<MyCPAN::App::BackPAN::Indexer> to provide the
-right components.
-
-The work happens in two steps. When you call C<activate>, the program goes
-through all of the steps to examin each of the module distributions. It creates
-a report for each distribution, then stops. This pause right after the
-examination gives you the chance to do something right before the program
-creates the PAUSE index files. The examination might take several minutes
-(or even hours depending on how much you want to index), so you have a chance
-to check the state of the world before the next step.
-
-When you call C<activate_end>, the program takes the results from the
-previous step and creates the PAUSE index files in the F<modules> directory.
-This step should be very quick since all of the information is ready-to-go.
-
-=cut
+=back
 
 =head1 SOURCE AVAILABILITY
 
