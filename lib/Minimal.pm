@@ -52,6 +52,10 @@ C<get_reporter> expects and should do.
 If C<relative_paths_in_report> is true, the reports removes the base
 path up to I<author/id>.
 
+=item get_report_file_extension
+
+Returns the extension for report files.
+
 =cut
 
 sub get_report_file_extension { 'txt' }

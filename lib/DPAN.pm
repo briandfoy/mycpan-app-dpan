@@ -160,7 +160,7 @@ sub activate_steps
 	);
 	}
 
-=item default( DIRECTIVE )
+=item activate_end
 
 Runs right before C<dpan> is about to exit. It calls the postflight
 handler if one if configured. It prints a short summary message to
