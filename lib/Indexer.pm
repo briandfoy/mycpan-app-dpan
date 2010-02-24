@@ -10,7 +10,7 @@ use vars qw($VERSION $logger);
 # it's a problem with who's cleanup() get called
 use base qw(MyCPAN::App::BackPAN::Indexer MyCPAN::Indexer);
 
-$VERSION = '1.28_10';
+$VERSION = '1.28_11';
 
 =head1 NAME
 

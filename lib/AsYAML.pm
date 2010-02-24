@@ -15,7 +15,7 @@ use File::Basename qw(dirname);
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(catfile rel2abs);
 
-$VERSION = '1.28_10';
+$VERSION = '1.28_11';
 
 =head1 NAME
 
