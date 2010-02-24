@@ -73,7 +73,7 @@ sub examine_dist_steps
 	);
 	}
 
-=item find_modules_techniques
+=item find_module_techniques
 
 Returns the list of techniques that C<find_modules> should use
 to look for Perl module files. See the documentation in

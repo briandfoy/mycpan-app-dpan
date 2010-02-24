@@ -110,7 +110,7 @@ sub default
 	$_[0]->SUPER::default( $_[1] );
 	}
 
-=item default( DIRECTIVE )
+=item adjust_config
 
 Adjusts the configuration to set various internal values. You don't need
 to call this yourself.
@@ -139,7 +139,7 @@ sub adjust_config
 $logger = Log::Log4perl->get_logger( 'backpan_indexer' );
 }
 
-=item default( DIRECTIVE )
+=item activate_steps
 
 Returns the list of methods to invoke from C<activate>. By overriding this
 method you can change the DPAN process.
