@@ -147,17 +147,48 @@ they are specific to your setup:
 	pause_id   DPAN      
 	system_id   an unnamed system
 
-You are probably safe with the remaining defaults which configure C<dpan>
-for the most common situation.
+You are probably safe with the remaining defaults which configure
+C<dpan> for the most common situation.
 
 =head2 Dealing with indexing failures
 
+If there's an error, you'll see some error output and C<dpan> will
+dump the error into a file for that distribution under
+F<indexer_reports/error_reports/>.
+
+There are two common reasons for an index failure: either the analysis
+could not complete in the alloted time (by default 15 seconds) or
+C<dpan> could not unpack the distribution. Although rare, the next
+most frequent problem comes from an unexpected distribution structure.
+
+We're developing a bunch of reports that we can distribute separately
+so you don't have to do this by hand. If your run into problem
+distributions, let us know.
+
+=head3 Time-outs
+
+If you see the error "Alarm rang", it means the analysis timed-out.
+You can set a longer time by configuring the alarm time in your
+configuration file:
+
+	alarm: 120
+	
+Some distributions can take an extremely long time (more than a couple
+minutes) to unpack. This time might include the transfer speed over your
+network if you have to get the file over NFS, etc), the size of the distribution,
+the speed at which you can write files.
+
+=head3 Distribution unpacking
+
+C<MyCPAN::Indexer> relies on C<Archive::Extract> to unpack distributions.
+C<Archive::Extract> can try a pure Perl solution through C<Archive::Tar>
+or use an external binary.
+
+=head3 Can't find modules
+
 CPAN authors can do almost anything they like with their modules, so
-C<MyCPAN::Indexer> might have some trouble indexing some modules. If
-there's an error, you'll see some error output and C<dpan> will dump
-the error into a file for that distribution under
-F<indexer_reports/error_reports/>. The most frequent problems comes
-from errors unpacking archives.
+C<MyCPAN::Indexer> might have some trouble indexing some modules.  The
+most frequent problems comes from errors unpacking archives.
 
 Although C<MyCPAN::Indexer> is constantly trying to improve its
 ability to analyze distributions, DPAN specifically disables
@@ -173,10 +204,6 @@ indexer can use pre-prepared reports in addition to the reports that
 it generates. These extra reports can be ones that you create by hand
 with information that you know about the module or reports that you
 get from a more in-depth index.
-
-We're developing a bunch of reports that we can distribute separately
-so you don't have to do this by hand. If your run into problem
-distributions, let us know.
 
 =head2 Adding your local distributions
 
