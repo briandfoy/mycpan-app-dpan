@@ -61,8 +61,8 @@ distributions it finds, and creates the PAUSE index files from what it
 finds. Afterward, you should be able to point a CPAN tool at the
 directory and install the distributions normally.
 
-If you don't specify any directories, it works with the current
-working directory.
+If you don't specify any directories on the command line, it works
+with the current working directory.
 
 At the end, C<dpan> creates a F<modules> directory in the first
 directory (or the current working directory) and creates the
@@ -603,7 +603,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2008-2009, brian d foy, All Rights Reserved.
+Copyright (c) 2008-2010, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 
