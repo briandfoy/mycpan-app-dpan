@@ -39,6 +39,12 @@ WriteMakefile(
 	
 	'EXE_FILES'    => [ qw(script/dpan) ],
 	
+	'META_MERGE'   => {
+		'resources' => {
+			'repository'  =>  'https://github.com/briandfoy/mycpan--app--dpan',
+		},
+	},
+	
 	clean  => { FILES    => q|MyCPAN-* test-corpus/modules test-corpus/indexer_reports| },
 
 	);
