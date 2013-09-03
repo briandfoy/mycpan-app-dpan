@@ -1,4 +1,4 @@
-package MyCPAN::Indexer::UserManual;
+package MyCPAN::App::DPAN::UserManual;
 use strict;
 use warnings;
 use utf8;
@@ -102,9 +102,9 @@ key-value pairs:
 	organize_dists 1
 	retry_errors   0
 	merge_dirs     my_local_modules/foo/bar
-	
+
 To see the configuration for any setup, you can use the C<-c> switch:
-	
+
 	% dpan -c
 	alarm   15        
 	author_map             
@@ -172,7 +172,7 @@ You can set a longer time by configuring the alarm time in your
 configuration file:
 
 	alarm: 120
-	
+
 Some distributions can take an extremely long time (more than a couple
 minutes) to unpack. This time might include the transfer speed over your
 network if you have to get the file over NFS, etc), the size of the distribution,
@@ -280,7 +280,7 @@ Once complete, start up C<minicpan_webserver> from
 C<CPAN::Mini::Webserver>:
 
 	% minicpan_webserver
-	
+
  C<minicpan_webserver> uses the C<local> value from F<~/.minicpanrc>.
 
 =head2 Keeping DPAN in source control
@@ -314,7 +314,7 @@ like. Each component has its own logging category:
 	Reporter
 	Collator
 	PostFlight
-	
+
 For more details on the components, see C<MyCPAN::Indexer::Tutorial>. There
 are some example Log4perl configurations in the C<MyCPAN::Indexer> and
 C<MyCPAN::App::DPAN> distributions.
@@ -340,7 +340,7 @@ brian d foy, C<< <bdfoy@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2010, brian d foy, All Rights Reserved.
+Copyright (c) 2010-2013, brian d foy, All Rights Reserved.
 
 You may redistribute this under the same terms as Perl itself.
 
