@@ -5,7 +5,7 @@ require 5.006;
 eval "use Test::Manifest 1.21";
 
 WriteMakefile(
-	'NAME'	       => 'MyCPAN::App::DPAN',
+	'NAME'         => 'MyCPAN::App::DPAN',
 	'ABSTRACT'     => 'Create a custom, private DarkPAN repository that looks just like a real CPAN',
 	'VERSION_FROM' => 'lib/MyCPAN/App/DPAN.pm',
 	'LICENSE'      => 'perl',
@@ -36,6 +36,6 @@ WriteMakefile(
 			}
 		},
 
-	clean  => { FILES    => q|MyCPAN-* test-corpus/modules test-corpus/indexer_reports| },
+	clean  => { FILES => q|MyCPAN-* test-corpus/modules test-corpus/indexer_reports| },
 
 	);
