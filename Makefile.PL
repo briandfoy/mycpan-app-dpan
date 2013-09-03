@@ -30,7 +30,7 @@ WriteMakefile(
 		resources => {
 			repository => {
 				type => 'git',
-				url  => 'https://github.com/briandfoy/mycpan--app--dpan',
+				url  => 'git@github.com:briandfoy/mycpan--app--dpan.git',
 				web  => 'https://github.com/briandfoy/mycpan--app--dpan',
 				}
 			}
