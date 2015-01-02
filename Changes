@@ -4,12 +4,12 @@
 	* Added a lot of docs, including the new UserManual.pm
 
 1.28_07 - Thu Feb 18 17:42:50 2010
-	* it's now dpan_dir, not backpan_dir. The old configuration still 
+	* it's now dpan_dir, not backpan_dir. The old configuration still
 	works though.
 	* other directories with dists to pull in go into merge_dirs
 	* Fixed problem with adding X-SVN header to 02packages.
-	
-	
+
+
 1.28_06 - Thu Feb 18 13:55:17 2010
 	* The error reports from Minimal.pm now dump all the info the indexer
 	collected, and puts the error messages at the top of the error report.
@@ -20,16 +20,16 @@
 	* Supports 00whois.xml and 01mailrc.txt.gz, either by modifying the real
 	ones, or making stubs and faking it. This lets CPAN::Mini::Webserver
 	work.
-	* The Reporter final_words stuff is now moved in its own Collator 
-	object. This removes a lot of special cases for hooking into the 
+	* The Reporter final_words stuff is now moved in its own Collator
+	object. This removes a lot of special cases for hooking into the
 	Reporter outside of examining a dist.
 
 1.28_03 - Wed Dec 9 19:36:54 2009
 	* Support the DPAN_LOGLEVEL environment variable
-	
+
 1.28_02 - Mon Nov 30 17:49:29 2009
-	* Completely redo how the Minimal reporter decides which 
-	packages to include in the report. It looks at the package 
+	* Completely redo how the Minimal reporter decides which
+	packages to include in the report. It looks at the package
 	name and compares it to the file. If it looks like they
 	are the same, that one wins even if another file has the
 	same package with a higher version. Otherwise, only the
@@ -44,7 +44,7 @@
 1.27 - Sun Nov  8 02:33:58 2009
 	* Now you can set the Log4perl config file with the
 	DPAN_LOG4PERL_FILE.
-	* Refactored some bits in the Minimal reporter to 
+	* Refactored some bits in the Minimal reporter to
 	make it easier to override the bits that decide
 	which reports to index.
 
@@ -62,6 +62,6 @@
 
 1.18_03 - Fri May  8 16:04:26 2009
 	* Clean up dist
-	* Fix problem with _exit inherited from MyCPAN::Indexer. This 
+	* Fix problem with _exit inherited from MyCPAN::Indexer. This
 	killed applications embedding the DPAN indexer
 
