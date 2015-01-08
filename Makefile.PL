@@ -1,17 +1,21 @@
-require 5.006;
+require 5.008;
 use strict;
 use warnings;
 
+use File::Spec::Functions qw(catfile);
 
-my $github    = 'https://github.com/briandfoy/';
-my $main_file = 'lib/';
+my $module    = 'MyCPAN::App::DPAN';
+my $github    = 'https://github.com/briandfoy/mycpan-app-dpan';
+my $main_file = catfile( 'lib', split /::/, "$module.pm" );
 
 my %WriteMakefile = (
-	'NAME'         => 'MyCPAN::App::DPAN',
+	'NAME'          => $module,
 	'ABSTRACT_FROM' => $main_file,
-	'VERSION_FROM' => 'lib/MyCPAN/App/DPAN.pm',
-	'LICENSE'      => 'perl',
-	'AUTHOR'       => 'brian d foy <bdfoy@cpan.org>',
+	'VERSION_FROM'  => $main_file,
+	'LICENSE'       => 'perl',
+	'AUTHOR'        => 'brian d foy <bdfoy@cpan.org>',
+
+	'EXE_FILES'    => [ qw(script/dpan) ],
 
 	'CONFIGURE_REQUIRES' => {
 		'ExtUtils::MakeMaker' => '6.64',
@@ -25,6 +29,15 @@ my %WriteMakefile = (
 		},
 
 	'PREREQ_PM'     => {
+		'CPAN::Checksums'      => '0',
+		'CPAN::PackageDetails' => '0.24',
+		'IPC::Cmd'             => '0',
+		'IPC::System::Simple'  => '0',
+		'Log::Log4perl'        => '0',
+		'MyCPAN::Indexer'      => '1.28_04',
+		'LWP::Simple'          => '0',
+		'Test::Output'         => '0.13',
+		'version'              => '0',
 		},
 
 	'META_MERGE' => {
@@ -41,33 +54,8 @@ my %WriteMakefile = (
 			homepage => $github,
 			},
 		},
-	'PREREQ_PM'    => { 
-		'CPAN::Checksums'      => '0',
-		'CPAN::PackageDetails' => '0.24',
-		'IPC::Cmd'             => '0',
-		'IPC::System::Simple'  => '0',
-		'Log::Log4perl'        => '0',
-		'MyCPAN::Indexer'      => '1.28_04',
-		'LWP::Simple'          => '0',
-		'Test::Output'         => '0.13',
-		'version'              => '0',
-		},
-
-	'EXE_FILES'    => [ qw(script/dpan) ],
-
-	META_MERGE => {
-		'meta-spec' => { version => 2 },
-		resources => {
-			repository => {
-				type => 'git',
-				url  => 'git@github.com:briandfoy/mycpan--app--dpan.git',
-				web  => 'https://github.com/briandfoy/mycpan--app--dpan',
-				}
-			}
-		},
 
 	clean  => { FILES => q|MyCPAN-* test-corpus/modules test-corpus/indexer_reports| },
-
 	);
 
 sub arguments { \%WriteMakefile }
