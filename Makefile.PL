@@ -1,10 +1,12 @@
 require 5.008;
+
+package MyCPAN::App::DPAN;
 use strict;
 use warnings;
 
 use File::Spec::Functions qw(catfile);
 
-my $module    = 'MyCPAN::App::DPAN';
+my $module    = __PACKAGE__;
 ( my $dist = $module ) =~ s/::/-/g;
 
 my $github    = 'https://github.com/briandfoy/mycpan-app-dpan';
