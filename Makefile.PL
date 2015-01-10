@@ -58,7 +58,7 @@ my %WriteMakefile = (
 			},
 		},
 
-	clean  => { FILES => q|MyCPAN-* test-corpus/modules test-corpus/indexer_reports| },
+	clean  => { FILES => q|$dist-* test-corpus/modules test-corpus/indexer_reports| },
 	);
 
 sub arguments { \%WriteMakefile }
