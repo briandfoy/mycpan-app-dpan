@@ -5,6 +5,8 @@ use warnings;
 use File::Spec::Functions qw(catfile);
 
 my $module    = 'MyCPAN::App::DPAN';
+( my $dist = $module ) =~ s/::/-/g;
+
 my $github    = 'https://github.com/briandfoy/mycpan-app-dpan';
 my $main_file = catfile( 'lib', split /::/, "$module.pm" );
 
