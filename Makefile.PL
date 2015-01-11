@@ -53,7 +53,7 @@ my %WriteMakefile = (
 				url  => "$github.git",
 				web  => $github,
 				},
-			bugtraker => {
+			bugtracker => {
 				web    => "$github/issues",
 				},
 			homepage => $github,
