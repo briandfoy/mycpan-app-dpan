@@ -1,5 +1,7 @@
-.travis.yml
+.gitconfig
 Changes
+examples/dpan.log4perl
+INSTALL.SKIP
 lib/MyCPAN/App/DPAN.pm
 lib/MyCPAN/App/DPAN/CPANUtils.pm
 lib/MyCPAN/App/DPAN/Indexer.pm
@@ -12,10 +14,10 @@ lib/MyCPAN/App/DPAN/UserManual.pm
 LICENSE
 Makefile.PL
 MANIFEST			This list of files
-MYMETA.json
-MYMETA.yml
+MANIFEST.SKIP
 README.pod
 script/backpan_indexer.config.dpan
+script/backpan_indexer.log4perl
 script/dpan
 t/app/dpan.t
 t/compile.t
