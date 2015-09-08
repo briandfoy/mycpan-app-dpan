@@ -18,6 +18,8 @@ BEGIN {
 	$collator_logger = Log::Log4perl->get_logger( 'Collator' );
 	}
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN::Reporter::Minimal - Save the minimum information that dpan needs

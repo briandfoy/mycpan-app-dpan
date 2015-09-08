@@ -17,6 +17,8 @@ use File::Spec::Functions qw(catfile rel2abs);
 
 $VERSION = '1.28_12';
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN::Reporter::AsYAML - Record the indexing results as YAML

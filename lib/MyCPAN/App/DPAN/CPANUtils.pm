@@ -17,6 +17,8 @@ sub DESTROY { 1 }
 }
 
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN::CPANUtils - various things to interact with CPAN

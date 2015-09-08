@@ -12,6 +12,8 @@ use IPC::System::Simple qw(capturex systemx);
 use Log::Log4perl;
 use XML::Simple;
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN::SVNPostFlight - A No-op reports processor
@@ -140,14 +142,14 @@ sub run
 	# sure.
 	my $dpan_dir = $config->get( 'dpan_dir' );
 	chdir $dpan_dir;
-	
+
 	# If there isn't a .svn directory, there's not much that we can do
 	unless( -e '.svn' )
 		{
 		$logger->logdie( "There isn't an .svn directory in [$dpan_dir]! I can't continue!" );
 		return;
 		}
-		
+
 	# Construct an object, although it's not necessary. We're going to
 	# use it to adjust some configuration, etc, that we can pass around.
 	# In this case, we just transfer the postflight_dry_run value.

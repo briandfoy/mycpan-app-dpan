@@ -11,6 +11,8 @@ use Log::Log4perl;
 
 $VERSION = '1.28_12';
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN - Create a CPAN-like structure out of some dists
@@ -282,7 +284,7 @@ sub components
 
 =item fresh_start
 
-If C<fresh_start> is set, this method deletes the reports in the 
+If C<fresh_start> is set, this method deletes the reports in the
 report directory, leaving the directories in place.
 
 =cut
@@ -292,9 +294,9 @@ sub fresh_start
 	my( $application ) = @_;
 
 	my $config = $application->get_coordinator->get_config;
-	
+
 	return unless $config->get( 'fresh_start' );
-	
+
 	require File::Path;
 	foreach my $dir ( map { my $m = "${_}_report_subdir"; $config->$m() } qw(error success) )
 		{

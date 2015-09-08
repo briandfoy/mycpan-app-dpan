@@ -17,6 +17,8 @@ BEGIN {
 	$logger = Log::Log4perl->get_logger( 'Queue' );
 	}
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN::Queue - Find distributions to index, possibly skipping some

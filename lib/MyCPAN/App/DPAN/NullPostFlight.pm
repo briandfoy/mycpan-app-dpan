@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use utf8;
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN::SVNPostFlight - A No-op postflight class

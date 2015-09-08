@@ -12,6 +12,8 @@ use base qw(MyCPAN::App::BackPAN::Indexer MyCPAN::Indexer);
 
 $VERSION = '1.28_12';
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN::Indexer - Create a D(ark)PAN out of the indexed distributions

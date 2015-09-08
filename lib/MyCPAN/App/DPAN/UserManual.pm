@@ -6,6 +6,8 @@ use utf8;
 use vars qw($VERSION);
 $VERSION = '1.28_12';
 
+=encoding utf8
+
 =head1 NAME
 
 MyCPAN::App::DPAN::UserManual - How to manage a DPAN
@@ -54,9 +56,9 @@ webserver, or put it behind an FTP server.
 
 So far, it's up to you to decide which distributions that you want in
 your repository, but we'd like to create a tool that can take a single
-distribution and tell you everything else it needs. 
+distribution and tell you everything else it needs.
 
-For a more general solution, you can start with a MiniCPAN which 
+For a more general solution, you can start with a MiniCPAN which
 either filters the distributions from the real CPAN or just includes
 all of them.
 
@@ -106,36 +108,36 @@ key-value pairs:
 To see the configuration for any setup, you can use the C<-c> switch:
 
 	% dpan -c
-	alarm   15        
-	author_map             
+	alarm   15
+	author_map
 	collator_class   MyCPAN::App::DPAN::Reporter::Minimal
-	copy_bad_dists   0         
+	copy_bad_dists   0
 	dispatcher_class   MyCPAN::Indexer::Dispatcher::Serial
 	dpan_dir   /Users/brian/DEv/mycpan--app--dpan
 	error_report_subdir   /Users/brian/DEv/mycpan--app--dpan/indexer_reports/error
-	extra_reports_dir             
-	fresh_start   0         
-	i_ignore_errors_at_my_peril   0         
-	ignore_missing_dists   0         
+	extra_reports_dir
+	fresh_start   0
+	i_ignore_errors_at_my_peril   0
+	ignore_missing_dists   0
 	ignore_packages   main MY MM DB bytes DynaLoader
 	indexer_class   MyCPAN::App::DPAN::Indexer
 	indexer_id   Joe Example <joe@example.com>
 	interface_class   MyCPAN::Indexer::Interface::Text
-	log_file_watch_time   30        
-	organize_dists   1         
-	parallel_jobs   1         
+	log_file_watch_time   30
+	organize_dists   1
+	parallel_jobs   1
 	pause_full_name   DPAN user <CENSORED>
-	pause_id   DPAN      
-	prefer_bin   0         
+	pause_id   DPAN
+	prefer_bin   0
 	queue_class   MyCPAN::App::DPAN::SkipQueue
-	relative_paths_in_report   1         
+	relative_paths_in_report   1
 	report_dir   /Users/brian/DEv/mycpan--app--dpan/indexer_reports
 	reporter_class   MyCPAN::App::DPAN::Reporter::Minimal
-	retry_errors   1         
-	skip_perl   0         
+	retry_errors   1
+	skip_perl   0
 	success_report_subdir   /Users/brian/DEv/mycpan--app--dpan/indexer_reports/success
 	system_id   an unnamed system
-	use_real_whois   0         
+	use_real_whois   0
 	worker_class   MyCPAN::Indexer::Worker
 
 There are some directives that you'll probably want to set right away because
@@ -144,7 +146,7 @@ they are specific to your setup:
 	dpan_dir   /path/to/my/dpan/repository
 	indexer_id   Joe Example <joe@example.com>
 	pause_full_name   DPAN user <CENSORED>
-	pause_id   DPAN      
+	pause_id   DPAN
 	system_id   an unnamed system
 
 You are probably safe with the remaining defaults which configure
@@ -208,12 +210,12 @@ get from a more in-depth index.
 =head2 Adding your local distributions
 
 You could just dump the private distributions you want to add into
-the DPAN directory, but you can also copy them in from other 
+the DPAN directory, but you can also copy them in from other
 directories:
 
 	merge_dirs /repo/foo/bar /repo/baz/quux
 
-This is quite handy when you are using C<CPAN::Mini>, which tries to 
+This is quite handy when you are using C<CPAN::Mini>, which tries to
 remove files it doesn't think belong in the repository. After you
 update your MiniCPAN, C<dpan> can copy these additional modules into
 your DPAN repository.
@@ -289,16 +291,16 @@ DPAN might be most useful when you keep it in source control. At the
 end of an indexing run, C<dpan> can commit the changes to source
 control. There are some adjustments that you need to make, however.
 
-First, you have to ensure that C<minicpan> won't remove your source 
+First, you have to ensure that C<minicpan> won't remove your source
 control directories. There's a patch for that:
 
 	http://github.com/briandfoy/cpan-mini/commit/6cc882cc09b2987ce0f3a4f8087ea751feaa88f1
 
-Next, configure a C<postflight_class> for C<dpan>. Start with the 
-C<MyCPAN::App::DPAN::SVNPostFlight> for an example. At the end of 
+Next, configure a C<postflight_class> for C<dpan>. Start with the
+C<MyCPAN::App::DPAN::SVNPostFlight> for an example. At the end of
 processing, C<dpan> calls the C<run> method in C<postflight_class>.
 In the example, C<MyCPAN::App::DPAN::SVNPostFlight> figures out what
-to remove or add to your subversion repository and commits the 
+to remove or add to your subversion repository and commits the
 result. It's more fully explained in the example, which is intended as
 a starting point for your own process.
 
