@@ -26,7 +26,7 @@ MyCPAN::App::DPAN::Indexer - Create a D(ark)PAN out of the indexed distributions
 
 This module implements the indexer_class and reporter_class components
 to allow C<backpan_indexer.pl> to create a CPAN-like directory structure
-with its associated index files. This application of MyCPAN::Indexer is
+with its associated index files. This application of L<MyCPAN::Indexer> is
 specifically aimed at creating a 02packages.details file, so it
 strives to collect a minimum of information.
 
