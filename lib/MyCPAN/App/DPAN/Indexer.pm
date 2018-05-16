@@ -108,7 +108,7 @@ Save this feature for another time
 
 
 	(
-	#[ 'look_in_cwd_and_lib',       "Guessed from looking in lib/"      ],
+	[ 'look_in_cwd_and_lib',       "Guessed from looking in lib/"      ],
 	[ 'look_in_lib',               "Guessed from looking in lib/"      ],
 	[ 'look_in_cwd',               "Guessed from looking in cwd"       ],
 	[ 'look_in_meta_yml_provides', "Guessed from looking in META.yml"  ],
