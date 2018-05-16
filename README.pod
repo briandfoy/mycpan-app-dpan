@@ -2,6 +2,16 @@
 
 =encoding utf8
 
+=for HTML <a href="https://travis-ci.org/briandfoy/mycpan-app-dpan"><img src="https://travis-ci.org/briandfoy/mycpan-app-dpan.svg?branch=master" /></a>
+
+=for HTML <a href='https://ci.appveyor.com/project/briandfoy/mycpan-app-dpan'><img src='https://ci.appveyor.com/api/projects/status/rbtswlboo9iag68h' /></a>
+
+=for HTML <a href='https://coveralls.io/github/briandfoy/mycpan-app-dpan?branch=master'><img src='https://coveralls.io/repos/github/briandfoy/mycpan-app-dpan/badge.svg?branch=master' alt='Coverage Status' /></a>
+
+=for HTML <a href="https://github.com/briandfoy/mycpan-app-dpan/blob/master/LICENSE"><img src="https://img.shields.io/cpan/l/MyCPAN-App-DPAN.svg" /></a>
+
+=for HTML <a href="http://www.metacpan.org/module/MyCPAN::App::DPAN"><img src="https://img.shields.io/cpan/v/MyCPAN-App-DPAN.svg" /></A>
+
 =head1 The MyCPAN::App::DPAN module
 
 This is the I<README> for the L<MyCPAN::App::DPAN> Perl module. You're probably
