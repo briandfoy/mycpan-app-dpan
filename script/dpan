@@ -163,7 +163,7 @@ Config level: MyCPAN
 =item dpan_dir
 
 The directory where C<dpan> will create the DPAN. It takes a single
-directory. 
+directory.
 
 Default: the current working directory
 
@@ -302,7 +302,7 @@ Config level: MyCPAN
 =item merge_dirs
 
 A space separated list of directories containing distributions
-to merge into DPAN. These will go into the directory for 
+to merge into DPAN. These will go into the directory for
 C<pause_id>. The files are copied, not renamed, so it works
 across partitions and mount points.
 
@@ -367,7 +367,7 @@ If defined, after C<dpan> has finished all of its work and is ready to
 exit, it will try to load this class and execute its C<run()> method.
 It passes C<run()> the application object, so you have full access to
 everything. See C<MyCPAN::App::DPAN::NullPostFlight> for an example. To use
-the application object, you need to know a little about the guts of 
+the application object, you need to know a little about the guts of
 C<MyCPAN::Indexer>.
 
 Default: undef
