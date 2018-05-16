@@ -80,3 +80,4 @@ test-corpus
 config_test.pl
 omni_file
 \.gitconfig
+\.appveyor\.yml
