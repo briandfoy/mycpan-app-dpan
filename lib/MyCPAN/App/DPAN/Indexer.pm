@@ -91,8 +91,7 @@ Save this feature for another time
 
 	my $config = $self->get_coordinator->get_config;
 
-	if( my @techniques = $config->get( 'find_module_techniques' ) )
-		{
+	if( my @techniques = $config->get( 'find_module_techniques' ) ) {
 		$logger->debug( "Using techniques [@techniques] to find modules" );
 
 		@techniques = map {
