@@ -1,5 +1,9 @@
 Revision history for Perl module DarkPAN::Creator
 
+1.281 2018-05-16T18:28:35Z
+	* Change to Artistic License 2.0
+	* Sync with latest MyCPAN::Indexer
+
 1.28_11 - 2010-02-23
 	* Added a lot of docs, including the new UserManual.pm
 
