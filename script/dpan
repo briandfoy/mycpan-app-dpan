@@ -2,7 +2,7 @@
 
 use MyCPAN::App::DPAN 1.28;
 
-our $VERSION = '1.28_12';
+our $VERSION = '1.281';
 
 if( grep /^-?-h(elp)?$/, @ARGV ) {
 	require Pod::Usage;

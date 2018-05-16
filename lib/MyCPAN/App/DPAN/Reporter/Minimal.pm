@@ -4,7 +4,7 @@ use warnings;
 
 use base qw(MyCPAN::Indexer::Reporter::Base);
 use vars qw($VERSION $reporter_logger $collator_logger);
-$VERSION = '1.28_12';
+$VERSION = '1.281';
 
 use Carp;
 use Cwd;

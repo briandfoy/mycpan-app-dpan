@@ -9,7 +9,7 @@ use Cwd qw(cwd);
 use File::Spec::Functions;
 use Log::Log4perl;
 
-$VERSION = '1.28_12';
+$VERSION = '1.281';
 
 =encoding utf8
 
