@@ -64,8 +64,7 @@ the find the modules.
 
 =cut
 
-sub examine_dist_steps
-	{
+sub examine_dist_steps {
 	(
 	#    method                error message                  fatal
 	[ 'unpack_dist',        "Could not unpack distribution!",    1 ],
@@ -83,8 +82,7 @@ C<MyCPAN::Indexer::find_modules>.
 
 =cut
 
-sub find_module_techniques
-	{
+sub find_module_techniques {
 	my( $self ) = @_;
 
 =pod
@@ -111,7 +109,7 @@ Save this feature for another time
 
 
 	(
-	[ 'look_in_cwd_and_lib',       "Guessed from looking in lib/"      ],
+	#[ 'look_in_cwd_and_lib',       "Guessed from looking in lib/"      ],
 	[ 'look_in_lib',               "Guessed from looking in lib/"      ],
 	[ 'look_in_cwd',               "Guessed from looking in cwd"       ],
 	[ 'look_in_meta_yml_provides', "Guessed from looking in META.yml"  ],
@@ -127,8 +125,7 @@ C<MyCPAN::Indexer::get_module_info>.
 
 =cut
 
-sub get_module_info_tasks
-	{
+sub get_module_info_tasks{
 	(
 	[ 'extract_module_namespaces',   'Extract the namespaces a file declares' ],
 	[ 'extract_module_version',      'Extract the version of the module'      ],
@@ -143,8 +140,7 @@ so the details about the run aren't as interesting.
 
 =cut
 
-sub setup_run_info
-	{
+sub setup_run_info {
 #	TRACE( sub { get_caller_info } );
 
 	$_[0]->set_run_info( 'root_working_dir', cwd()   );
@@ -168,8 +164,7 @@ files, so the details about the distribution aren't as interesting.
 
 =cut
 
-sub setup_dist_info
-	{
+sub setup_dist_info {
 #	TRACE( sub { get_caller_info } );
 
 	my( $self, $dist ) = @_;
