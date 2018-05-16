@@ -70,6 +70,7 @@ my %WriteMakefile = (
 		'CPAN::Checksums'      => '0',
 		'CPAN::PackageDetails' => '0.24',
 		'IPC::Cmd'             => '0',
+		'IPC::Run'             => '0',
 		'IPC::System::Simple'  => '0',
 		'Log::Log4perl'        => '0',
 		'MyCPAN::Indexer'      => '1.28_04',
