@@ -241,7 +241,7 @@ sub whois_filename { '00whois.xml' }
 
 This code is in Github:
 
-      git://github.com/briandfoy/mycpan--app--dpan.git
+	git://github.com/briandfoy/mycpan-app-dpan.git
 
 =head1 AUTHOR
 

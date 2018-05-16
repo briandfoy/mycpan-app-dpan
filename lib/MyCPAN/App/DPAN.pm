@@ -315,8 +315,7 @@ sub fresh_start
 
 This code is in Github:
 
-      git://github.com/briandfoy/mycpan-indexer.git
-      git://github.com/briandfoy/mycpan--app--dpan.git
+	git://github.com/briandfoy/mycpan-app-dpan.git
 
 =head1 AUTHOR
 

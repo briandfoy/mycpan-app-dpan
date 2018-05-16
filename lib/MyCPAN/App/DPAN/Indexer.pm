@@ -186,8 +186,7 @@ sub setup_dist_info
 
 This code is in Github:
 
-      git://github.com/briandfoy/mycpan-indexer.git
-      git://github.com/briandfoy/mycpan--app--dpan.git
+	git://github.com/briandfoy/mycpan-app-dpan.git
 
 =head1 AUTHOR
 
