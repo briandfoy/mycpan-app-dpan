@@ -41,3 +41,4 @@ test-corpus/authors/01mailrc.txt.gz
 test-corpus/authors/id/B/BD/BDFOY/CHECKSUMS
 test-corpus/indexer_reports
 test-corpus/modules
+*.icould
