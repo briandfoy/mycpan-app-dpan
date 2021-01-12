@@ -42,3 +42,6 @@ test-corpus/authors/id/B/BD/BDFOY/CHECKSUMS
 test-corpus/indexer_reports
 test-corpus/modules
 *.icould
+MANIFEST*[123456789]
+Changes*[123456789]
+
