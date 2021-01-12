@@ -82,3 +82,6 @@ omni_file
 \.gitconfig
 \.appveyor\.yml
 \AMyCPAN-.*
+\bMANIFEST\s\d
+\bChanges\s\d
+
