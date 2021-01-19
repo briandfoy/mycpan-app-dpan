@@ -80,7 +80,7 @@ MyCPAN::App::DPAN, dpan
 
 This code is in Github:
 
-	git://github.com/briandfoy/mycpan-app-dpan.git
+	https://github.com/briandfoy/mycpan-app-dpan.git
 
 =head1 AUTHOR
 
