@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use subs qw(get_caller_info);
-use vars qw($VERSION  $reporter_logger $collator_logger);
+use vars qw($reporter_logger $collator_logger);
 
 # don't change the inheritance order
 # this should be done with roles, but we don't quite have that yet
@@ -17,7 +17,7 @@ use File::Basename qw(dirname);
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(catfile rel2abs);
 
-$VERSION = '1.281';
+our $VERSION = '1.282';
 
 =encoding utf8
 

@@ -5,13 +5,13 @@ use strict;
 use warnings;
 
 use base qw(MyCPAN::App::BackPAN::Indexer);
-use vars qw($VERSION $logger);
+use vars qw($logger);
 
 use Cwd qw(cwd);
 use File::Spec::Functions;
 use Log::Log4perl;
 
-$VERSION = '1.281';
+our $VERSION = '1.282';
 
 =encoding utf8
 

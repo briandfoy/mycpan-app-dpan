@@ -5,14 +5,14 @@ use strict;
 use warnings;
 
 use subs qw(get_caller_info);
-use vars qw($VERSION $logger);
+use vars qw($logger);
 
 # don't change the inheritance order
 # this should be done with roles, but we don't quite have that yet
 # it's a problem with who's cleanup() get called
 use parent qw(MyCPAN::App::BackPAN::Indexer MyCPAN::Indexer);
 
-$VERSION = '1.281';
+our $VERSION = '1.282';
 
 =encoding utf8
 

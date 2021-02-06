@@ -3,9 +3,8 @@ require v5.14;
 package MyCPAN::App::DPAN::CPANUtils;
 use strict;
 use warnings;
-use vars qw($VERSION);
 
-$VERSION = '1.281';
+our $VERSION = '1.282';
 
 use File::Spec::Functions;
 

@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use utf8;
 
+our $VERSION = '1.282';
+
 =encoding utf8
 
 =head1 NAME

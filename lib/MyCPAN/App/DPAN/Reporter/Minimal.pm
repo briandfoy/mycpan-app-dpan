@@ -5,8 +5,8 @@ use strict;
 use warnings;
 
 use base qw(MyCPAN::Indexer::Reporter::Base);
-use vars qw($VERSION $reporter_logger $collator_logger);
-$VERSION = '1.281';
+use vars qw($reporter_logger $collator_logger);
+our $VERSION = '1.282';
 
 use Carp;
 use Cwd;

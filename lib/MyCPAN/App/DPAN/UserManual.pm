@@ -5,8 +5,7 @@ use strict;
 use warnings;
 use utf8;
 
-use vars qw($VERSION);
-$VERSION = '1.281';
+our $VERSION = '1.282';
 
 =encoding utf8
 

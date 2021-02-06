@@ -14,6 +14,8 @@ use IPC::System::Simple qw(capturex systemx);
 use Log::Log4perl;
 use XML::Simple;
 
+our $VERSION = '1.282';
+
 =encoding utf8
 
 =head1 NAME
