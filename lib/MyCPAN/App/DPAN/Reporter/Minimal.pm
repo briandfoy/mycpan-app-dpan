@@ -1,3 +1,5 @@
+require v5.14;
+
 package MyCPAN::App::DPAN::Reporter::Minimal;
 use strict;
 use warnings;
