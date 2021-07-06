@@ -277,6 +277,7 @@ sub components
 	[ qw( reporter   MyCPAN::App::DPAN::Reporter::Minimal  get_reporter   ) ],
 	[ qw( queue      MyCPAN::Indexer::Queue                get_queue      ) ],
 	[ qw( dispatcher MyCPAN::Indexer::Dispatcher::Serial   get_dispatcher ) ],
+	[ qw( indexer    MyCPAN::App::DPAN::Indexer            get_indexer    ) ],
 	[ qw( worker     MyCPAN::Indexer::Worker               get_task       ) ],
 	[ qw( collator   MyCPAN::App::DPAN::Reporter::Minimal  get_collator   ) ],
 # this has to be last because it kicks off everything
