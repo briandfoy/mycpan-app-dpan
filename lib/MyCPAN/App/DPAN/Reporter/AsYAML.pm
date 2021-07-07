@@ -82,7 +82,7 @@ sub get_collator
 
 	my $collator = sub { $_[0]->final_words( $_[1] ) };
 
-	$self->set_note( $_[0]->collator_type, $collator );
+	$self->set_note( 'collator', $collator );
 
 	1;
 	}

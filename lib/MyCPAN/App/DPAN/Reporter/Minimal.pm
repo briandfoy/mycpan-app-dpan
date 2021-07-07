@@ -215,7 +215,7 @@ sub get_collator
 		return 1;
 		};
 
-	$self->set_note( $_[0]->collator_type, $collator );
+	$self->set_note( 'collator', $collator );
 
 	1;
 	}
