@@ -86,3 +86,4 @@ omni_file
 \.icloud$
 \A\.github\b
 
+\.gitattributes\b
