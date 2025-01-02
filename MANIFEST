@@ -18,6 +18,7 @@ README.pod
 script/backpan_indexer.config.dpan
 script/backpan_indexer.log4perl
 script/dpan
+SECURITY.md
 t/app/dpan.t
 t/compile.t
 t/cpan/get_cpan_mirrors.t
