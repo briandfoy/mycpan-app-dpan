@@ -1,16 +1,15 @@
-BEGIN {
-	@classes = qw(
-		MyCPAN::App::DPAN
-		MyCPAN::App::DPAN::Reporter::AsYAML
-		MyCPAN::App::DPAN::Reporter::Minimal
-		MyCPAN::App::DPAN::Indexer
-		MyCPAN::App::DPAN::CPANUtils
-		);
+use Test::More;
+
+my @classes = qw(
+	MyCPAN::App::DPAN
+	MyCPAN::App::DPAN::Reporter::AsYAML
+	MyCPAN::App::DPAN::Reporter::Minimal
+	MyCPAN::App::DPAN::Indexer
+	MyCPAN::App::DPAN::CPANUtils
+	);
+
+foreach my $class ( @classes ) {
+	use_ok $class or BAIL_OUT( "$class did not compile: $@" );
 	}
 
-use Test::More tests => scalar @classes;
-
-foreach my $class ( @classes )
-	{
-	print "Bail out! $class did not compile\n" unless use_ok( $class );
-	}
+done_testing();
