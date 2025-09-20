@@ -298,11 +298,11 @@ This code is in Github:
 
 =head1 AUTHOR
 
-brian d foy, C<< <briandfoy.org> >>
+brian d foy, C<< <briandfoy@pobox.com> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright © 2010-2025, brian d foy <briandfoy.org>. All rights reserved.
+Copyright © 2010-2025, brian d foy <briandfoy@pobox.com>. All rights reserved.
 
 You may redistribute this under the terms of the Artistic License 2.0.
 
