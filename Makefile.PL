@@ -67,6 +67,8 @@ my %WriteMakefile = (
 		},
 
 	'PREREQ_PM'     => {
+		'Archive::Extract'     => '0',
+		'Archive::Libarchive'  => '0',
 		'CPAN::Checksums'      => '0',
 		'CPAN::PackageDetails' => '0.24',
 		'IPC::Cmd'             => '0',
