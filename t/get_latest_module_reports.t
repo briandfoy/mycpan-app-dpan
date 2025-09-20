@@ -17,28 +17,26 @@ subtest 'sanity' => sub {
 	can_ok( $class, $method );
 	};
 
-{
-no strict 'refs';
-no warnings 'redefine';
-*{"${class}::_get_report_names_by_dist_names"} =
-	sub { return $Mock::Reports_names_hashref };
+subtest 'mocks' => sub {
+	no strict 'refs';
+	no warnings 'redefine';
+	*{"${class}::_get_report_names_by_dist_names"} =
+		sub { return $Mock::Reports_names_hashref };
 
-*{"${class}::_get_all_reports"} =
-	sub { return $Mock::Reports_arrayref };
+	*{"${class}::_get_all_reports"} =
+		sub { return $Mock::Reports_arrayref };
 
-# XXX: this needs better testing
-*{"${class}::_get_extra_reports"} =
-	sub { return () };
+	# XXX: this needs better testing
+	*{"${class}::_get_extra_reports"} =
+		sub { return () };
 
-*{"${class}::get_success_report_dir"} =
-	sub { 'foo' };
-}
+	*{"${class}::get_success_report_dir"} =
+		sub { 'foo' };
+	};
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Situations
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
 subtest 'matches dists' => sub { # The reports match the dists, no extras
 	local $SIG{__DIE__} = sub { &confess }; use Carp qw(confess);
 	$Mock::Reports_names_hashref = {
