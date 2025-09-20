@@ -74,7 +74,7 @@ $logger = Log::Log4perl->get_logger( 'PostFlight' );
 }
 
 BEGIN {
-my $svn = IPC::Cmd::can_run( 'svn' );
+my $svn = IPC::Cmd::can_run( 'svn' ) // '';
 $logger->debug( "svn commmand is [$svn]" );
 
 =item svn
