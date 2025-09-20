@@ -32,6 +32,8 @@ subtest 'mocks' => sub {
 
 	*{"${class}::get_success_report_dir"} =
 		sub { 'foo' };
+
+	pass("Installed mocks");
 	};
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
