@@ -148,6 +148,7 @@ sub _write_success_file
 	my( $self, $info, $packages ) = @_;
 
 	my $out_path = $self->get_report_path( $info );
+	File::Path::make_path dirname($out_path) unless -d dirname($out_path);
 	open my($fh), ">:utf8", $out_path or
 	$reporter_logger->fatal( "Could not open $out_path to record success report: $!" );
 
