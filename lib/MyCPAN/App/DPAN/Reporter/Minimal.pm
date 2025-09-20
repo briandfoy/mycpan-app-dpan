@@ -404,7 +404,7 @@ sub get_latest_module_reports
 
 	no warnings 'uninitialized';
 	my @files =
-		map  { catfile( $report_dir, $substr($_->[-1], 0, 1), substr($_->[-1], 0, 2), $_->[-1] ) }
+		map  { catfile( $report_dir, substr($_->[-1], 0, 1), substr($_->[-1], 0, 2), $_->[-1] ) }
 		grep { ! $Seen{$_->[0]}++ }
 		map  { [ /^(.*)-(.*)\.txt\z/, $_ ] }
 		reverse
