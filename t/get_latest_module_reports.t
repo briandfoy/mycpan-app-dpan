@@ -51,7 +51,7 @@ subtest 'matches dists' => sub { # The reports match the dists, no extras
 		Bar-4.673.txt
 		Baz-8.673.txt
 		)];
-	my $expected = [ sort map { catfile( 'foo', $_ ) } qw(
+	my $expected = [ sort map { catfile( 'foo', report_subpath($_) ) } qw(
 		Bar-4.673.txt
 		Baz-8.673.txt
 		Foo-Bar-1.23.txt
@@ -78,7 +78,7 @@ subtest 'old reports' => sub { # Some reports are old
 		Baz-8.673.txt
 		)];
 
-	my $expected = [ sort map { catfile( $class->get_success_report_dir, $_ ) } qw(
+	my $expected = [ sort map { catfile( $class->get_success_report_dir, report_subpath($_) ) } qw(
 		Bar-4.673.txt
 		Baz-8.673.txt
 		Foo-Bar-1.23.txt
@@ -105,7 +105,7 @@ subtest "newer reports" => sub { # Some reports are newer without matching dists
 		Quux-999.txt
 		)];
 
-	my $expected = [ sort map { catfile( $class->get_success_report_dir, $_ ) } qw(
+	my $expected = [ sort map { catfile( $class->get_success_report_dir, report_subpath($_) ) } qw(
 		Bar-4.673.txt
 		Baz-8.673.txt
 		Fob-Bar-1.23.txt
@@ -128,7 +128,7 @@ subtest 'no matching dists'	=> sub { # Some reports don't have matching dists
 		Baz-8.673.txt
 		)];
 
-	my $expected = [ sort map { catfile( $class->get_success_report_dir, $_ ) } qw(
+	my $expected = [ sort map { catfile( $class->get_success_report_dir, report_subpath($_) ) } qw(
 		Baz-8.673.txt
 		)];
 
@@ -138,3 +138,5 @@ subtest 'no matching dists'	=> sub { # Some reports don't have matching dists
 	};
 
 done_testing();
+
+sub report_subpath { (substr($_[0],0,1), substr($_[0],0,2), $_[0]) }
