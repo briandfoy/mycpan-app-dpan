@@ -79,6 +79,7 @@ my %WriteMakefile = (
 		'LWP::Simple'          => '0',
 		'Test::Output'         => '0.13',
 		'version'              => '0',
+		'XML::Simple'          => '0',
 		},
 
 	'META_MERGE' => {
